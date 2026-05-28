@@ -1,8 +1,11 @@
 "use client";
 
 import React, { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function PrincipalPage() {
+    const router = useRouter();
+
     useEffect(() => {
         // Script para activar animaciones de revelación usando IntersectionObserver
         const observer = new IntersectionObserver(
@@ -70,23 +73,26 @@ export default function PrincipalPage() {
             {/* Barra de navegación superior con efecto de desenfoque (Glass) */}
             <nav className="fixed top-0 w-full z-50 glass no-line transition-all duration-200">
                 <div className="flex justify-between items-center px-8 py-4 max-w-full mx-auto shadow-[0px_20px_40px_rgba(45,51,56,0.06)]">
-                    <div className="text-2xl font-bold tracking-tight text-primary font-headline">Caminos de Apoyo</div>
+                    <div className="text-2xl font-bold tracking-tight text-primary font-headline">Anonimus {" "}❤️‍🩹</div>
                     <div className="hidden md:flex space-x-8">
                         <a
                             className="text-on-surface-variant hover:text-primary transition-colors duration-300 font-headline text-sm font-medium hover:scale-105 ease-out"
-                            href="principal.html#comunidades"
+                            onClick={() => router.push("/communities")}
+                            href="#"
                         >
                             Comunidades
                         </a>
                         <a
                             className="text-on-surface-variant hover:text-primary transition-colors duration-300 font-headline text-sm font-medium hover:scale-105 ease-out nav-retos"
-                            href="login.html"
+                            onClick={() => router.push("/challenges")}
+                            href="#"
                         >
                             Retos
                         </a>
                         <a
                             className="text-on-surface-variant hover:text-primary transition-colors duration-300 font-headline text-sm font-medium hover:scale-105 ease-out"
-                            href="seccion.html"
+                            onClick={() => router.push("/experiences")}
+                            href="#"
                         >
                             Muro de Experiencias
                         </a>

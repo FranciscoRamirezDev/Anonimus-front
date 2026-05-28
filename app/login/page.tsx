@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/purity */
 "use client";
 
 import { registerUserService } from "@/services/register";
@@ -70,9 +71,7 @@ export default function LoginPage() {
   };
 
   const handleGenerateAlias = () => {
-    // eslint-disable-next-line react-hooks/purity
     const randomIdx = Math.floor(Math.random() * RANDOM_ALIASES.length);
-    // eslint-disable-next-line react-hooks/purity
     const generated = RANDOM_ALIASES[randomIdx] + Math.floor(Math.random() * 100);
     setAlias(generated);
     showToast(`Alias aleatorio generado: ${generated}`, "success");

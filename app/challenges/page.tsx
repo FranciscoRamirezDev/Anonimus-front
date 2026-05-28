@@ -2,7 +2,7 @@
 
 import React from "react";
 
-export default function PerfilRetosPage() {
+export default function ChallengesPage() {
     return (
         <div className="bg-surface text-on-surface min-h-screen relative overflow-x-hidden font-body bg-[#f7f9fc]">
             <style dangerouslySetInnerHTML={{
