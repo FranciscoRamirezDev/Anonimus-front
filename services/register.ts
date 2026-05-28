@@ -7,20 +7,25 @@ export interface RegisterData {
 }
 
 export interface RegisterResponse {
+    status: number;
     success: boolean;
     message: string;
     userId?: string;
     token?: string;
 }
 
-export async function registerUser(data: RegisterData): Promise<RegisterResponse> {
+export async function registerUserService(data: RegisterData): Promise<RegisterResponse> {
     try {
         const response = await fetch(`${API_BASE_URL}/auth/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(data),
+            body: JSON.stringify({
+                alias: data.alias,
+                password_hash: data.password,
+                avatar_url: data.avatar,
+            }),
         });
 
         if (!response.ok) {

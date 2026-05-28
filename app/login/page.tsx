@@ -1,6 +1,8 @@
 "use client";
 
+import { registerUserService } from "@/services/register";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const AVATAR_POOL = [
   "https://lh3.googleusercontent.com/aida-public/AB6AXuAYsND-BnzxoQw4y4g31iiwdsWoY0VWtH7eft9LDPsXk9F-HJqGiOBqRM-N6IgrHIz9yzH6D-hTtu0uVWuwWXX5aLeHOed10TRQKlz4sEusojtB9gzjWQFZf2uiJBoN1hDP9timpOAop6_nr6cpuJ7f54lMijU9SUAx73ETjU1J88PFC5F4lJFhFkNlqfvaOggxlNSVWjCqmwh7T5-6SG5_DcF-pR2_Cis4I2l853VH-TRNiNIYpISF0mGtzzFgNYhTFgiCt2sQ1_M",
@@ -26,6 +28,11 @@ const RANDOM_ALIASES = [
 ];
 
 export default function LoginPage() {
+
+  // Router
+  const router = useRouter();
+
+  //states
   const [activeTab, setActiveTab] = useState<"register" | "login">("register");
   const [avatars, setAvatars] = useState(AVATAR_POOL);
   const [selectedAvatarIdx, setSelectedAvatarIdx] = useState<number>(0);
@@ -56,12 +63,15 @@ export default function LoginPage() {
     const shuffled = [...avatars].sort(() => Math.random() - 0.5);
     setAvatars(shuffled);
     // Select a random one
+    // eslint-disable-next-line react-hooks/purity
     setSelectedAvatarIdx(Math.floor(Math.random() * 3));
     showToast("¡Avatares barajados con éxito!", "success");
   };
 
   const handleGenerateAlias = () => {
+    // eslint-disable-next-line react-hooks/purity
     const randomIdx = Math.floor(Math.random() * RANDOM_ALIASES.length);
+    // eslint-disable-next-line react-hooks/purity
     const generated = RANDOM_ALIASES[randomIdx] + Math.floor(Math.random() * 100);
     setAlias(generated);
     showToast(`Alias aleatorio generado: ${generated}`, "success");
@@ -93,14 +103,37 @@ export default function LoginPage() {
     setIsLoading(true);
     
     // Simulate API request
-    setTimeout(() => {
-      setIsLoading(false);
-      if (activeTab === "register") {
-        showToast("¡Registro exitoso! Bienvenido a Caminos de Apoyo.", "success");
-      } else {
-        showToast("¡Inicio de sesión exitoso! Bienvenido de vuelta.", "success");
-      }
-    }, 1500);
+    // setTimeout(() => {
+    //   setIsLoading(false);
+    //   if (activeTab === "register") {
+    //     showToast("¡Registro exitoso! Bienvenido a Caminos de Apoyo.", "success");
+    //   } else {
+    //     showToast("¡Inicio de sesión exitoso! Bienvenido de vuelta.", "success");
+    //   }
+    // }, 1500);
+
+    if (activeTab === "register") {
+      registerUserService({
+        alias,
+        password,
+        avatar: avatars[selectedAvatarIdx],
+      })
+        .then((response) => {
+          setIsLoading(false);
+          if (response.status === 201) {
+            showToast("¡Registro exitoso! Bienvenido a Anonimus Caminos de Apoyo, ya pueden Ingresar.", "success");
+            setActiveTab("login");
+          } else {
+            showToast(response.message, "error");
+          }
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          showToast(error.message, "error");
+        });
+    } else {
+      // Handle login logic
+    }
   };
 
   return (
