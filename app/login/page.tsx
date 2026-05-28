@@ -1,6 +1,7 @@
 "use client";
 
 import { registerUserService } from "@/services/register";
+import { loginUserService } from "@/services/login";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
@@ -132,7 +133,17 @@ export default function LoginPage() {
           showToast(error.message, "error");
         });
     } else {
-      // Handle login logic
+      loginUserService({ alias, password })
+        .then((response) => {
+          setIsLoading(false);
+          localStorage.setItem("token", response.token);
+          showToast("¡Inicio de sesión exitoso! Bienvenido de vuelta.", "success");
+          router.push("/dashboard");
+        })
+        .catch((error) => {
+          setIsLoading(false);
+          showToast(error.message, "error");
+        });
     }
   };
 
