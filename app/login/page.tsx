@@ -112,7 +112,7 @@ export default function LoginPage() {
       <header className="fixed top-0 w-full z-50 bg-[#f7f9fc]/80 backdrop-blur-md border-b border-outline-variant/10">
         <div className="flex justify-between items-center px-6 h-16 w-full max-w-screen-xl mx-auto">
           <div className="text-2xl font-bold text-[#8E94F2] font-headline tracking-tight">
-            Sanctuary
+            Anonimus
           </div>
           <button 
             type="button"
