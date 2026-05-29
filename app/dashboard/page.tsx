@@ -2,9 +2,11 @@
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useUserInfo } from "@/hooks/useUserInfo";
 
 export default function PrincipalPage() {
     const router = useRouter();
+    const user = useUserInfo();
 
     useEffect(() => {
         // Script para activar animaciones de revelación usando IntersectionObserver
@@ -78,21 +80,18 @@ export default function PrincipalPage() {
                         <a
                             className="text-on-surface-variant hover:text-primary transition-colors duration-300 font-headline text-sm font-medium hover:scale-105 ease-out"
                             onClick={() => router.push("/dashboard")}
-                            href="#"
                         >
                             Comunidades
                         </a>
                         <a
                             className="text-on-surface-variant hover:text-primary transition-colors duration-300 font-headline text-sm font-medium hover:scale-105 ease-out nav-retos"
                             onClick={() => router.push("/challenges")}
-                            href="#"
                         >
                             Retos
                         </a>
                         <a
                             className="text-on-surface-variant hover:text-primary transition-colors duration-300 font-headline text-sm font-medium hover:scale-105 ease-out"
                             onClick={() => router.push("/experiences")}
-                            href="#"
                         >
                             Muro de Experiencias
                         </a>
@@ -110,8 +109,15 @@ export default function PrincipalPage() {
                                 </span>
                             </button>
                         </div>
-                        <button className="font-headline text-sm font-medium text-primary hover:text-primary-dim transition-colors hover:scale-105 ease-out">
-                            Mi Alias
+                        <button className="flex items-center gap-2 font-headline text-sm font-medium text-primary hover:text-primary-dim transition-colors hover:scale-105 ease-out">
+                            {user?.avatar_url && (
+                                <img
+                                    alt="Avatar"
+                                    src={user.avatar_url}
+                                    className="w-8 h-8 rounded-full object-cover"
+                                />
+                            )}
+                            <span className="text-indigo-500 font-bold">{user?.alias ?? "Mi Alias"}</span>
                         </button>
                     </div>
                 </div>
@@ -258,16 +264,16 @@ export default function PrincipalPage() {
                         <p className="text-sm text-on-surface-variant">© 2024 Caminos de Apoyo. Tu anonimato es nuestra prioridad.</p>
                     </div>
                     <div className="md:col-span-2 flex justify-end space-x-8 items-center">
-                        <a className="font-be-vietnam text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">
+                        <a className="font-be-vietnam text-sm text-on-surface-variant hover:text-primary transition-colors" >
                             Privacidad
                         </a>
-                        <a className="font-be-vietnam text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">
+                        <a className="font-be-vietnam text-sm text-on-surface-variant hover:text-primary transition-colors" >
                             Términos
                         </a>
-                        <a className="font-be-vietnam text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">
+                        <a className="font-be-vietnam text-sm text-on-surface-variant hover:text-primary transition-colors" >
                             Seguridad
                         </a>
-                        <a className="font-be-vietnam text-sm text-on-surface-variant hover:text-primary transition-colors" href="#">
+                        <a className="font-be-vietnam text-sm text-on-surface-variant hover:text-primary transition-colors">
                             Ayuda
                         </a>
                     </div>
@@ -276,25 +282,25 @@ export default function PrincipalPage() {
 
             {/* Barra de navegación inferior optimizada para dispositivos móviles */}
             <nav className="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-6 pb-6 pt-3 bg-surface-container-lowest/90 backdrop-blur-lg rounded-t-[3rem] z-50 shadow-[0px_-10px_30px_rgba(0,0,0,0.04)] no-line">
-                <a className="flex flex-col items-center justify-center bg-primary-container/30 text-primary rounded-full px-5 py-2 hover:bg-primary-container/50 transition-colors duration-500" href="#">
+                <a className="flex flex-col items-center justify-center bg-primary-container/30 text-primary rounded-full px-5 py-2 hover:bg-primary-container/50 transition-colors duration-500" >
                     <span className="material-symbols-outlined mb-1" style={{ fontVariationSettings: "'FILL' 1" }}>
                         home
                     </span>
                     <span className="font-headline text-[10px] font-semibold">Inicio</span>
                 </a>
-                <a className="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container rounded-full px-5 py-2 transition-colors duration-500" href="#">
+                <a className="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container rounded-full px-5 py-2 transition-colors duration-500" >
                     <span className="material-symbols-outlined mb-1" style={{ fontVariationSettings: "'FILL' 0" }}>
                         group
                     </span>
                     <span className="font-headline text-[10px] font-semibold">Grupos</span>
                 </a>
-                <a className="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container rounded-full px-5 py-2 transition-colors duration-500" href="#">
+                <a className="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container rounded-full px-5 py-2 transition-colors duration-500" >
                     <span className="material-symbols-outlined mb-1" style={{ fontVariationSettings: "'FILL' 0" }}>
                         military_tech
                     </span>
                     <span className="font-headline text-[10px] font-semibold">Retos</span>
                 </a>
-                <a className="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container rounded-full px-5 py-2 transition-colors duration-500" href="#">
+                <a className="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container rounded-full px-5 py-2 transition-colors duration-500" >
                     <span className="material-symbols-outlined mb-1" style={{ fontVariationSettings: "'FILL' 0" }}>
                         forum
                     </span>

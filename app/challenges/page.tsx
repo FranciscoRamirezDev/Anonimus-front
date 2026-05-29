@@ -1,8 +1,10 @@
 "use client";
 
 import React from "react";
+import { useUserInfo } from "@/hooks/useUserInfo";
 
 export default function ChallengesPage() {
+    const user = useUserInfo();
     return (
         <div className="bg-surface text-on-surface min-h-screen relative overflow-x-hidden font-body bg-[#f7f9fc]">
             <style dangerouslySetInnerHTML={{
@@ -140,13 +142,14 @@ export default function ChallengesPage() {
                         </button>
                     </div>
                     <div className="flex items-center gap-3 bg-surface-container-lowest px-4 py-2 rounded-full shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300 ease-out">
-                        <img
-                            alt="Avatar"
-                            className="w-8 h-8 rounded-full object-cover"
-                            data-alt="A soft focus portrait of a young person smiling gently in natural sunlight, representing a peaceful anonymous user avatar"
-                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPq6uMOaeZ5t7dI5rHIWKM3dpTR4_DG8YYbDN9AMpONp1VOF2jURhVmQoaP4PSA-Hyai1Ji5RGB4jfIUUgLjJVNPBWH29OriMJ25F47i7mWCTNW98-VxOWYgz3ORJXP6eQJcjoHzMCxACZNKONdWxhOhVCCn_UkQW4PaxrAMbmjRQhluxuncBdsEf5vXLBnNq3mRHBlGyGC6d7tg9Tg2dD_Bzwh8uMQyv_dfPUv20A3I5cljr8j3GAhj9OUDm0LH_oqb5gGOkkOtc"
-                        />
-                        <span className="font-headline text-sm font-semibold text-primary">prueba2</span>
+                        {user?.avatar_url && (
+                            <img
+                                alt="Avatar"
+                                className="w-8 h-8 rounded-full object-cover"
+                                src={user.avatar_url}
+                            />
+                        )}
+                        <span className="font-headline text-sm font-semibold text-primary">{user?.alias ?? "Mi Alias"}</span>
                     </div>
                 </div>
             </header>
