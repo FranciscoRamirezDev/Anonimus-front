@@ -20,6 +20,8 @@ export default function ChallengesPage() {
     const [draft, setDraft] = useState<Record<number, number>>({});
     const [savingId, setSavingId] = useState<number | null>(null);
     const [feedback, setFeedback] = useState<string | null>(null);
+    const [highlightId, setHighlightId] = useState<number | null>(null);
+    const [roadmapOpen, setRoadmapOpen] = useState(false);
 
     const retosList = retos ?? [];
     // Barra general = promedio del progreso real de cada reto.
@@ -46,6 +48,13 @@ export default function ChallengesPage() {
 
     const formatDate = (iso: string) =>
         new Date(iso).toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" });
+
+    // Desde el roadmap, llevar y resaltar la carta del reto en "Mis Retos".
+    const goToReto = (id: number) => {
+        setHighlightId(id);
+        document.getElementById(`reto-${id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+        window.setTimeout(() => setHighlightId((cur) => (cur === id ? null : cur)), 1600);
+    };
 
     return (
         <div className="bg-surface text-on-surface min-h-screen relative overflow-x-hidden font-body bg-[#f7f9fc]">
@@ -179,10 +188,10 @@ export default function ChallengesPage() {
                 </div>
             </nav>
 
-            {/* Main Layout Grid */}
-            <div className="max-w-7xl mx-auto px-6 pt-24 md:pt-32 pb-32 grid grid-cols-1 lg:grid-cols-12 gap-12">
-                {/* Barra lateral: Lista de comunidades a las que se ha unido el usuario */}
-                <aside className="hidden lg:block lg:col-span-3 space-y-8">
+            {/* Layout vertical: 1) explicación · 2) progreso general (roadmap acordeón) · 3) Mis Retos */}
+            <div className="max-w-7xl mx-auto px-6 pt-24 md:pt-32 pb-32 space-y-8">
+                {/* 1) Explicación: cómo funcionan los retos (ancho completo) */}
+                <aside>
                     <div className="bg-surface-container-lowest rounded-xl p-6 shadow-ambient">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="w-12 h-12 rounded-full bg-primary-container/30 text-primary flex items-center justify-center shrink-0">
@@ -194,7 +203,7 @@ export default function ChallengesPage() {
                             Al unirte, recibes una serie de retos personales pensados para acompañar tu proceso,
                             un paso a la vez. Avanza a tu propio ritmo: no hay prisa ni comparación.
                         </p>
-                        <ul className="space-y-4">
+                        <ul className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <li className="flex items-start gap-3">
                                 <span className="material-symbols-outlined text-primary text-xl shrink-0">tune</span>
                                 <p className="text-xs text-on-surface-variant leading-relaxed">
@@ -223,10 +232,8 @@ export default function ChallengesPage() {
                     </div>
                 </aside>
 
-                {/* Main Panel: Dashboard & Challenge */}
-                <main className="lg:col-span-9 space-y-12">
-                    {/* Roadmap: progreso general + los 10 retos que se van completando */}
-                    <section className="bg-surface-container-lowest rounded-xl p-8 md:p-12 shadow-ambient relative overflow-hidden">
+                {/* 2) Progreso general (ancho completo) + roadmap colapsable */}
+                <section className="bg-surface-container-lowest rounded-xl p-6 shadow-ambient relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-primary-container rounded-full blur-[60px] opacity-40 -mr-20 -mt-20"></div>
                         <div className="relative z-10 space-y-8">
                             {/* Barra de progreso general (promedio de todos los retos) */}
@@ -246,14 +253,33 @@ export default function ChallengesPage() {
                                 </div>
                             </div>
 
-                            {/* Roadmap de los retos */}
+                            {/* Roadmap de los retos (acordeón, inicia cerrado) */}
                             {retosList.length > 0 && (
-                                <div className="space-y-4">
+                                <div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setRoadmapOpen((o) => !o)}
+                                        aria-expanded={roadmapOpen}
+                                        className="w-full flex items-center justify-between gap-3 py-2 text-on-surface font-headline font-semibold hover:text-primary transition-colors cursor-pointer"
+                                    >
+                                        <span>Roadmap de tus retos ({retosList.length})</span>
+                                        <span className={`material-symbols-outlined transition-transform ${roadmapOpen ? "rotate-180" : ""}`}>
+                                            expand_more
+                                        </span>
+                                    </button>
+                                    {roadmapOpen && (
+                                    <div className="space-y-4 mt-4">
                                     {retosList.map((reto, i) => {
                                         const isDone = (reto.progreso_pct ?? 0) >= 100;
                                         const completedAt = dates[reto.id_reto];
                                         return (
-                                            <div key={reto.id_reto} className="flex items-center gap-4">
+                                            <button
+                                                key={reto.id_reto}
+                                                type="button"
+                                                onClick={() => goToReto(reto.id_reto)}
+                                                className="w-full flex items-center gap-4 text-left group cursor-pointer"
+                                                title="Ver este reto en 'Mis Retos'"
+                                            >
                                                 <div
                                                     className={`flex items-center justify-center w-10 h-10 rounded-full shrink-0 shadow ${
                                                         isDone
@@ -270,7 +296,7 @@ export default function ChallengesPage() {
                                                     )}
                                                 </div>
                                                 <div
-                                                    className={`flex-grow flex items-center justify-between gap-3 p-4 rounded-lg border ${
+                                                    className={`flex-grow flex items-center justify-between gap-3 p-4 rounded-lg border transition-colors group-hover:border-primary/40 ${
                                                         isDone
                                                             ? "bg-surface border-outline-variant/10"
                                                             : "bg-surface-container-low/40 border-transparent"
@@ -287,18 +313,20 @@ export default function ChallengesPage() {
                                                         <span className="text-[10px] text-on-surface-variant shrink-0">{reto.progreso_pct ?? 0}%</span>
                                                     )}
                                                 </div>
-                                            </div>
+                                            </button>
                                         );
                                     })}
+                                    </div>
+                                    )}
                                 </div>
                             )}
                         </div>
                     </section>
 
-                    {/* Sección de Retos: progreso real, editable y persistido en el backend */}
-                    <section>
-                        <h2 className="font-headline font-bold text-2xl text-on-surface mb-2">Mis Retos</h2>
-                        <p className="text-sm text-on-surface-variant mb-8">
+                {/* 3) Mis Retos a todo el ancho (cartas en 2 columnas) */}
+                <section>
+                    <h2 className="font-headline font-bold text-2xl text-on-surface mb-2">Mis Retos</h2>
+                        <p className="text-sm text-on-surface-variant mb-6">
                             Indica tu porcentaje de avance en cada reto y guárdalo: se actualiza en tu cuenta.
                         </p>
 
@@ -309,7 +337,7 @@ export default function ChallengesPage() {
                             <p className="text-on-surface-variant">Aún no tienes retos asignados.</p>
                         )}
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             {retosList.map((reto) => {
                                 const pct = reto.progreso_pct ?? 0;
                                 const done = pct >= 100;
@@ -318,7 +346,10 @@ export default function ChallengesPage() {
                                 return (
                                     <div
                                         key={reto.id_reto}
-                                        className="bg-surface-container-lowest rounded-xl p-8 shadow-ambient flex flex-col justify-between gap-6"
+                                        id={`reto-${reto.id_reto}`}
+                                        className={`bg-surface-container-lowest rounded-xl p-6 shadow-ambient flex flex-col justify-between gap-6 scroll-mt-28 transition-shadow ${
+                                            highlightId === reto.id_reto ? "ring-2 ring-primary" : ""
+                                        }`}
                                     >
                                         <div className="flex justify-between items-start gap-3">
                                             <h3 className="font-headline font-semibold text-xl text-primary">{reto.titulo}</h3>
@@ -385,7 +416,6 @@ export default function ChallengesPage() {
                             })}
                         </div>
                     </section>
-                </main>
             </div>
 
             {/* Botón de emergencia flotante (SOS) */}

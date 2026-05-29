@@ -170,7 +170,7 @@ export default function PrincipalPage() {
                         </div>
                     </div>
                     <div className="relative z-10 flex-1 w-full h-[400px] rounded-[2rem] overflow-hidden reveal delay-400 group shadow-2xl">
-                        <div className="absolute inset-0 bg-primary/10 group-hover:bg-transparent transition-colors duration-1000 z-10 pointer-events-none mix-blend-overlay"></div>
+                        <div className="absolute inset-0 bg-primary/10 group-hover:bg-transparent transition-colors duration-1000 z-10 pointer-events-none mix-blend-overlay">{'FRANCISCO'}</div>
                         <Image
                             alt="Camino de Recuperación"
                             className="w-full h-full object-cover transform transition-transform duration-[15s] ease-out group-hover:scale-110"
@@ -202,7 +202,7 @@ export default function PrincipalPage() {
                             <button
                                 key={c.id_comunidad}
                                 onClick={() => router.push(`/communities/${c.id_comunidad}`)}
-                                className="text-left bg-surface-container-lowest rounded-[2rem] p-8 shadow-[0px_20px_40px_rgba(45,51,56,0.06)] hover:bg-surface-container-lowest/80 hover:-translate-y-2 transition-all duration-300 group flex flex-col cursor-pointer"
+                                className="text-left bg-surface-container-lowest rounded-[2rem] p-8 shadow-[0px_20px_40px_rgba(45,51,56,0.06)] hover:bg-primary-container/30 hover:-translate-y-2 transition-all duration-300 group flex flex-col cursor-pointer"
                             >
                                 <div className="w-16 h-16 rounded-full bg-primary-container/30 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
                                     <span className="material-symbols-outlined text-3xl">{communityIcon(c.categoria)}</span>
