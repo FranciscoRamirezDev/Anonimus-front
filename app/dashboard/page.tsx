@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useUserInfo } from "@/hooks/useUserInfo";
@@ -8,6 +8,25 @@ import { useUserInfo } from "@/hooks/useUserInfo";
 export default function PrincipalPage() {
     const router = useRouter();
     const user = useUserInfo();
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+    const handleLogout = () => {
+        // Borrar todas las cookies
+        document.cookie.split(";").forEach((c) => {
+            document.cookie = c
+                .replace(/^ +/, "")
+                .replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`);
+        });
+
+        // Borrar localStorage
+        localStorage.clear();
+
+        // Borrar sessionStorage
+        sessionStorage.clear();
+
+        // Redirigir a login
+        router.push("/login");
+    };
 
     useEffect(() => {
         // Script para activar animaciones de revelación usando IntersectionObserver
@@ -98,11 +117,17 @@ export default function PrincipalPage() {
                         </a>
                     </div>
                     <div className="flex items-center space-x-6">
-                        
                         <div className="flex items-center gap-3 bg-surface-container-lowest px-4 py-2 rounded-full shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300 ease-out">
                             
                             <span className="font-headline text-sm font-semibold text-primary">{user?.alias ?? "Mi Alias"}</span>
                         </div>
+                        <button
+                            onClick={() => setShowLogoutModal(true)}
+                            className="flex items-center justify-center w-10 h-10 rounded-full bg-surface-container-lowest hover:bg-surface-container transition-colors duration-300 ease-out"
+                            title="Cerrar sesión"
+                        >
+                            <span className="material-symbols-outlined text-primary/80 hover:text-primary">logout</span>
+                        </button>
                     </div>
                 </div>
             </nav>
@@ -292,6 +317,32 @@ export default function PrincipalPage() {
                     <span className="font-headline text-[10px] font-semibold">Muro</span>
                 </a>
             </nav>
+
+            {/* Modal de confirmación de logout */}
+            {showLogoutModal && (
+                <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+                    <div className="bg-surface-container-lowest rounded-[2rem] shadow-2xl max-w-md w-full p-8 space-y-6 animate-in fade-in zoom-in-95">
+                        <div className="space-y-2">
+                            <h2 className="text-2xl font-bold text-on-surface font-headline">Cerrar Sesión</h2>
+                            <p className="text-on-surface-variant">¿Estás seguro de que deseas cerrar sesión? Se eliminarán tus datos de sesión.</p>
+                        </div>
+                        <div className="flex gap-4">
+                            <button
+                                onClick={() => setShowLogoutModal(false)}
+                                className="flex-1 px-6 py-3 rounded-full border border-outline-variant/30 text-on-surface hover:bg-surface-container-low transition-colors duration-300 font-headline font-semibold"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={handleLogout}
+                                className="flex-1 px-6 py-3 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-colors duration-300 font-headline font-semibold shadow-[0px_10px_20px_rgba(112,73,179,0.2)] hover:scale-[1.02]"
+                            >
+                                Cerrar Sesión
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
