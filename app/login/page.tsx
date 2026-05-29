@@ -135,7 +135,8 @@ export default function LoginPage() {
       loginUserService({ alias, password })
         .then((response) => {
           setIsLoading(false);
-          localStorage.setItem("token", response.token);
+          localStorage.setItem("userInfo", JSON.stringify(response.user));
+          document.cookie = `token=${response.token}; path=/; max-age=86400; SameSite=Lax`;
           showToast("¡Inicio de sesión exitoso! Bienvenido de vuelta.", "success");
           router.push("/dashboard");
         })
