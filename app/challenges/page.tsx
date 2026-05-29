@@ -2,8 +2,11 @@
 
 import React from "react";
 import { useUserInfo } from "@/hooks/useUserInfo";
+import { useRouter } from "next/navigation";
 
 export default function ChallengesPage() {
+
+    const router = useRouter();
     const user = useUserInfo();
     return (
         <div className="bg-surface text-on-surface min-h-screen relative overflow-x-hidden font-body bg-[#f7f9fc]">
@@ -105,54 +108,37 @@ export default function ChallengesPage() {
             <div className="blob-bg blob-2"></div>
             <div className="blob-bg blob-3"></div>
 
-            {/* Barra de navegación superior para escritorio */}
-            <header className="hidden md:flex fixed top-0 w-full z-50 top-nav-bg shadow-ambient justify-between items-center px-8 py-4 max-w-full mx-auto">
-                <div className="text-2xl font-bold tracking-tight text-primary font-headline">Caminos de Apoyo</div>
-                <nav className="flex gap-8">
-                    <a
-                        className="font-plus-jakarta text-sm font-medium text-on-surface-variant hover:text-primary hover:scale-105 transition-transform duration-300 ease-out"
-                        href="principal.html#comunidades"
-                    >
-                        Comunidades
-                    </a>
-                    <a
-                        className="font-plus-jakarta text-sm font-medium text-primary border-b-2 border-primary-dim pb-1 scale-95 transition-all duration-200"
-                        href="profile.html"
-                    >
-                        Retos
-                    </a>
-                    <a
-                        className="font-plus-jakarta text-sm font-medium text-on-surface-variant hover:text-primary hover:scale-105 transition-transform duration-300 ease-out"
-                        href="seccion.html"
-                    >
-                        Muro de Experiencias
-                    </a>
-                </nav>
-                <div className="flex items-center gap-6">
-                    <div className="flex gap-4 text-on-surface-variant">
-                        <button className="hover:text-primary transition-colors hover:scale-105 duration-300">
-                            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>
-                                security
-                            </span>
-                        </button>
-                        <button className="hover:text-primary transition-colors hover:scale-105 duration-300">
-                            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>
-                                notifications
-                            </span>
-                        </button>
+            {/* Barra de navegación superior con efecto de desenfoque (Glass) */}
+            <nav className="fixed top-0 w-full z-50 glass no-line transition-all duration-200">
+                <div className="flex justify-between items-center px-8 py-4 max-w-full mx-auto shadow-[0px_20px_40px_rgba(45,51,56,0.06)]">
+                    <div className="text-2xl font-bold tracking-tight text-primary font-headline hover:cursor-pointer hover:scale-105 transition-transform duration-300 ease-out" onClick={() => router.push("/dashboard")}>Anonimus {" "}❤️‍🩹</div>
+                    <div className="hidden md:flex space-x-8">
+                        <a
+                            className="text-on-surface-variant hover:text-primary transition-colors duration-300 font-headline text-sm font-medium hover:scale-105 ease-out cursor-pointer"
+                            onClick={() => router.push("/dashboard")}
+                        >
+                            Comunidades
+                        </a>
+                        <a
+                            className="text-on-surface-variant hover:text-primary transition-colors duration-300 font-headline text-sm font-medium hover:scale-105 ease-out cursor-pointer"
+                            onClick={() => router.push("/challenges")}
+                        >
+                            Retos
+                        </a>
+                        <a
+                            className="text-on-surface-variant hover:text-primary transition-colors duration-300 font-headline text-sm font-medium hover:scale-105 ease-out cursor-pointer"
+                            onClick={() => router.push("/experiences")}
+                        >
+                            Muro de Experiencias
+                        </a>
                     </div>
-                    <div className="flex items-center gap-3 bg-surface-container-lowest px-4 py-2 rounded-full shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300 ease-out">
-                        {user?.avatar_url && (
-                            <img
-                                alt="Avatar"
-                                className="w-8 h-8 rounded-full object-cover"
-                                src={user.avatar_url}
-                            />
-                        )}
-                        <span className="font-headline text-sm font-semibold text-primary">{user?.alias ?? "Mi Alias"}</span>
+                    <div className="flex items-center space-x-6">
+                        <div className="flex items-center gap-3 bg-surface-container-lowest px-4 py-2 rounded-full shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300 ease-out">
+                            <span className="font-headline text-sm font-semibold text-primary">{user?.alias ?? "Mi Alias"}</span>
+                        </div>
                     </div>
                 </div>
-            </header>
+            </nav>
 
             {/* Main Layout Grid */}
             <div className="max-w-7xl mx-auto px-6 pt-24 md:pt-32 pb-32 grid grid-cols-1 lg:grid-cols-12 gap-12">

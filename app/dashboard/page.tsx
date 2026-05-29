@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect } from "react";
+import { useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useUserInfo } from "@/hooks/useUserInfo";
 
@@ -75,11 +76,11 @@ export default function PrincipalPage() {
             {/* Barra de navegación superior con efecto de desenfoque (Glass) */}
             <nav className="fixed top-0 w-full z-50 glass no-line transition-all duration-200">
                 <div className="flex justify-between items-center px-8 py-4 max-w-full mx-auto shadow-[0px_20px_40px_rgba(45,51,56,0.06)]">
-                    <div className="text-2xl font-bold tracking-tight text-primary font-headline">Anonimus {" "}❤️‍🩹</div>
+                    <div className="text-2xl font-bold tracking-tight text-primary font-headline hover:cursor-pointer hover:scale-105 transition-transform duration-300 ease-out" onClick={() => router.push("/dashboard")}>Anonimus {" "}❤️‍🩹</div>
                     <div className="hidden md:flex space-x-8">
                         <a
                             className="text-on-surface-variant hover:text-primary transition-colors duration-300 font-headline text-sm font-medium hover:scale-105 ease-out"
-                            onClick={() => router.push("/dashboard")}
+                            onClick={() => router.push("/communities")}
                         >
                             Comunidades
                         </a>
@@ -97,26 +98,9 @@ export default function PrincipalPage() {
                         </a>
                     </div>
                     <div className="flex items-center space-x-6">
-                        <div className="flex space-x-4">
-                            <button className="text-on-surface-variant hover:text-primary transition-colors hover:scale-105 ease-out">
-                                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>
-                                    security
-                                </span>
-                            </button>
-                            <button className="text-on-surface-variant hover:text-primary transition-colors hover:scale-105 ease-out">
-                                <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0" }}>
-                                    notifications
-                                </span>
-                            </button>
-                        </div>
+                        
                         <div className="flex items-center gap-3 bg-surface-container-lowest px-4 py-2 rounded-full shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300 ease-out">
-                            {user?.avatar_url && (
-                                <img
-                                    alt="Avatar"
-                                    className="w-8 h-8 rounded-full object-cover"
-                                    src={user.avatar_url}
-                                />
-                            )}
+                            
                             <span className="font-headline text-sm font-semibold text-primary">{user?.alias ?? "Mi Alias"}</span>
                         </div>
                     </div>
@@ -158,10 +142,11 @@ export default function PrincipalPage() {
                     </div>
                     <div className="relative z-10 flex-1 w-full h-[400px] rounded-[2rem] overflow-hidden reveal delay-400 group shadow-2xl">
                         <div className="absolute inset-0 bg-primary/10 group-hover:bg-transparent transition-colors duration-1000 z-10 pointer-events-none mix-blend-overlay"></div>
-                        <img
+                        <Image
                             alt="Camino de Recuperación"
                             className="w-full h-full object-cover transform transition-transform duration-[15s] ease-out group-hover:scale-110"
                             src="/fondo2.jpeg"
+                            fill
                         />
                     </div>
                 </section>

@@ -1,10 +1,14 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React from "react";
 import { useUserInfo } from "@/hooks/useUserInfo";
+import { useRouter } from "next/navigation";
 
 export default function TableroExperienciasPage() {
+    const router = useRouter();
     const user = useUserInfo();
+
     return (
         <div className="antialiased min-h-screen flex flex-col relative overflow-x-hidden bg-[#f7f9fc] text-[#2d3338] font-body">
             <style dangerouslySetInnerHTML={{
@@ -57,44 +61,35 @@ export default function TableroExperienciasPage() {
             </div>
 
             {/* Barra de navegación superior (Escritorio) */}
-            <nav className="hidden md:flex fixed top-0 w-full z-50 bg-surface/70 backdrop-blur-xl shadow-[0px_20px_40px_rgba(45,51,56,0.06)] justify-between items-center px-8 py-4 max-w-full mx-auto font-plus-jakarta text-sm font-medium">
-                <div className="text-2xl font-bold tracking-tight text-primary font-headline">Anonimus</div>
-                <div className="flex gap-8">
-                    <a
-                        className="text-on-surface-variant hover:text-primary hover:scale-105 transition-transform duration-300 ease-out"
-                        href="principal.html#comunidades"
-                    >
-                        Comunidades
-                    </a>
-                    <a
-                        className="text-on-surface-variant hover:text-primary hover:scale-105 transition-transform duration-300 ease-out nav-retos"
-                        href="login.html"
-                    >
-                        Retos
-                    </a>
-                    <a
-                        className="text-primary border-b-2 border-primary-container pb-1 hover:scale-105 transition-transform duration-300 ease-out"
-                        href="seccion.html"
-                    >
-                        Muro de Experiencias
-                    </a>
-                </div>
-                <div className="flex items-center gap-4">
-                    <button className="text-on-surface-variant hover:text-primary transition-colors">
-                        <span className="material-symbols-outlined">security</span>
-                    </button>
-                    <button className="text-on-surface-variant hover:text-primary transition-colors">
-                        <span className="material-symbols-outlined">notifications</span>
-                    </button>
-                    <div className="flex items-center gap-3 bg-surface-container-lowest px-4 py-2 rounded-full shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300 ease-out">
-                        {user?.avatar_url && (
-                            <img
-                                alt="Avatar"
-                                className="w-8 h-8 rounded-full object-cover"
-                                src={user.avatar_url}
-                            />
-                        )}
-                        <span className="font-headline text-sm font-semibold text-primary">{user?.alias ?? "Mi Alias"}</span>
+            <nav className="fixed top-0 w-full z-50 glass no-line transition-all duration-200">
+                <div className="flex justify-between items-center px-8 py-4 max-w-full mx-auto shadow-[0px_20px_40px_rgba(45,51,56,0.06)]">
+                    <div className="text-2xl font-bold tracking-tight text-primary font-headline hover:cursor-pointer hover:scale-105 transition-transform duration-300 ease-out" onClick={() => router.push("/dashboard")}>Anonimus {" "}❤️‍🩹</div>
+                    <div className="hidden md:flex space-x-8">
+                        <a
+                            className="text-on-surface-variant hover:text-primary transition-colors duration-300 font-headline text-sm font-medium hover:scale-105 ease-out"
+                            onClick={() => router.push("/dashboard")}
+                        >
+                            Comunidades
+                        </a>
+                        <a
+                            className="text-on-surface-variant hover:text-primary transition-colors duration-300 font-headline text-sm font-medium hover:scale-105 ease-out nav-retos"
+                            onClick={() => router.push("/challenges")}
+                        >
+                            Retos
+                        </a>
+                        <a
+                            className="text-on-surface-variant hover:text-primary transition-colors duration-300 font-headline text-sm font-medium hover:scale-105 ease-out"
+                            onClick={() => router.push("/experiences")}
+                        >
+                            Muro de Experiencias
+                        </a>
+                    </div>
+                    <div className="flex items-center space-x-6">
+
+                        <div className="flex items-center gap-3 bg-surface-container-lowest px-4 py-2 rounded-full shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300 ease-out">
+
+                            <span className="font-headline text-sm font-semibold text-primary">{user?.alias ?? "Mi Alias"}</span>
+                        </div>
                     </div>
                 </div>
             </nav>
