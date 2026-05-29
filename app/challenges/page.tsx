@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAsync } from "@/hooks/useAsync";
 import { useRetoDates } from "@/hooks/useRetoDates";
 import { getChallengesByUser, updateReto } from "@/services/challenges";
+import UserAvatar from "@/components/UserAvatar";
 
 export default function ChallengesPage() {
 
@@ -182,6 +183,7 @@ export default function ChallengesPage() {
                     </div>
                     <div className="flex items-center space-x-6">
                         <div className="flex items-center gap-3 bg-surface-container-lowest px-4 py-2 rounded-full shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300 ease-out">
+                            <UserAvatar alias={user?.alias} avatarUrl={user?.avatar_url} className="w-7 h-7" />
                             <span className="font-headline text-sm font-semibold text-primary">{user?.alias ?? "Mi Alias"}</span>
                         </div>
                     </div>

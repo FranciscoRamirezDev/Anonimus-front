@@ -105,6 +105,7 @@ export default function TableroExperienciasPage() {
 
                         <div className="flex items-center gap-3 bg-surface-container-lowest px-4 py-2 rounded-full shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300 ease-out">
 
+                            <UserAvatar alias={user?.alias} avatarUrl={user?.avatar_url} className="w-7 h-7" />
                             <span className="font-headline text-sm font-semibold text-primary">{user?.alias ?? "Mi Alias"}</span>
                         </div>
                     </div>
