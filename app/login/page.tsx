@@ -5,14 +5,12 @@ import { registerUserService } from "@/services/register";
 import { loginUserService } from "@/services/login";
 import { seedDefaultRetos } from "@/services/challenges";
 import { saveSession } from "@/lib/auth";
+import { AVATAR_OPTIONS } from "@/lib/avatar";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-const AVATAR_POOL = [
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuAYsND-BnzxoQw4y4g31iiwdsWoY0VWtH7eft9LDPsXk9F-HJqGiOBqRM-N6IgrHIz9yzH6D-hTtu0uVWuwWXX5aLeHOed10TRQKlz4sEusojtB9gzjWQFZf2uiJBoN1hDP9timpOAop6_nr6cpuJ7f54lMijU9SUAx73ETjU1J88PFC5F4lJFhFkNlqfvaOggxlNSVWjCqmwh7T5-6SG5_DcF-pR2_Cis4I2l853VH-TRNiNIYpISF0mGtzzFgNYhTFgiCt2sQ1_M",
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuAduSSwb5vF-JBX05ng0oNXrrYdh7hLDK-7ZPKs6jQ3V4ry5Lqqi4_u86OpW7GH5nrtGIWPrbvZ7KIKqWzxxXMNWO0otH9-vb7p_Y1G13NAjBFtWpFdeD0ZfHtnGo-9NYBoOpT0nTbqPhSzoYps8vDp9zbVyV5dgsb-Y_40b47d8bzLkU93FoDmxAC57f3ochDhAp67eJtCQtO_GzoFc16PLXQLqvy_yZo_kWDQKSBimnwRUB-ytWzLoA5OVsXaj6Ke5uyuBOgLqMY",
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuAMudVB7_fsVO8alWV0NOe92MkUO9BA6xSg6CVzHeZaSwZHH37XqZFlunuGPTFokUhqowN1N7RkrYfTTkUGKSux1fknmsQ4cYrVLfqN3CM61snBdbXu3wD4cLK3Xe-2XzIeuLqyd_gzSl2p2cY1Eh3f75dvTgodpZQMI0uVvtZ1w8e9STbA0ooF3LKkxRGFQzTrDQEG_j7wv6rFk2PAyEwaR8tN_NIxiJlMASQCwfynUioea9z-H_ZuyfJ9mHzR8PsF6YOJB5ZW0Ho",
-];
+// Avatares estables (DiceBear): se guardan en la BD y no caducan.
+const AVATAR_POOL = AVATAR_OPTIONS;
 
 const RANDOM_ALIASES = [
   "CaminanteSilencioso",
