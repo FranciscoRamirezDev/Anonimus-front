@@ -6,23 +6,37 @@ import { useEffect, useState } from "react";
 import { useAsync } from "@/hooks/useAsync";
 import { listCommunities } from "@/services/communities";
 import { listPosts } from "@/services/posts";
-import { communityIcon, decorativeMembers } from "@/lib/communityDecor";
+import { communityIcon } from "@/lib/communityDecor";
 
 export default function CommunitiesPage() {
     const router = useRouter();
     const user = useUserInfo();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
-    const { data: communities, loading, error } = useAsync(() => listCommunities(), []);
-
-    // Mis comunidades = aquellas donde el usuario tiene al menos una publicación.
-    const { data: myCommunities, loading: myLoading } = useAsync(async () => {
-        if (!user) return [];
+    const { data, loading, error } = useAsync(async () => {
         const [comms, posts] = await Promise.all([listCommunities(), listPosts()]);
-        const ids = new Set(
-            posts.filter((p) => p.id_usuario === user.id_usuario).map((p) => p.id_comunidad)
-        );
-        return comms.filter((c) => ids.has(c.id_comunidad));
+
+        // "Miembros" reales = usuarios distintos que han publicado en cada comunidad.
+        const usersByCommunity: Record<number, Set<number>> = {};
+        for (const p of posts) {
+            (usersByCommunity[p.id_comunidad] ??= new Set()).add(p.id_usuario);
+        }
+        const membersByCommunity: Record<number, number> = {};
+        for (const cid in usersByCommunity) {
+            membersByCommunity[cid] = usersByCommunity[cid].size;
+        }
+
+        // Mis comunidades = donde el usuario tiene al menos una publicación.
+        const myIds = user
+            ? new Set(posts.filter((p) => p.id_usuario === user.id_usuario).map((p) => p.id_comunidad))
+            : new Set<number>();
+        const myCommunities = comms.filter((c) => myIds.has(c.id_comunidad));
+
+        return { communities: comms, membersByCommunity, myCommunities };
     }, [user?.id_usuario]);
+
+    const communities = data?.communities;
+    const myCommunities = data?.myCommunities;
+    const membersByCommunity = data?.membersByCommunity ?? {};
 
     const handleLogout = () => {
         // Borrar todas las cookies
@@ -183,7 +197,7 @@ export default function CommunitiesPage() {
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center text-sm text-on-surface-variant font-medium">
                                         <span className="material-symbols-outlined text-base mr-2">group</span>
-                                        <span>{decorativeMembers(c.id_comunidad)} miembros</span>
+                                        <span>{membersByCommunity[c.id_comunidad] ?? 0} miembros</span>
                                     </div>
                                     <span className="text-primary font-medium group-hover:text-primary-dim flex items-center text-sm">
                                         Entrar
@@ -204,10 +218,10 @@ export default function CommunitiesPage() {
                         </p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {myLoading && (
+                        {loading && (
                             <p className="md:col-span-2 text-center text-on-surface-variant">Cargando tus comunidades…</p>
                         )}
-                        {!myLoading && myCommunities?.length === 0 && (
+                        {!loading && myCommunities?.length === 0 && (
                             <p className="md:col-span-2 text-center text-on-surface-variant">
                                 Aún no has publicado en ninguna comunidad. ¡Entra a una y comparte tu primera experiencia!
                             </p>
