@@ -1,21 +1,52 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useUserInfo } from "@/hooks/useUserInfo";
 import { useRouter } from "next/navigation";
 import { useAsync } from "@/hooks/useAsync";
-import { useRetoProgress } from "@/hooks/useRetoProgress";
-import { getChallengesByUser } from "@/services/challenges";
+import { useRetoDates } from "@/hooks/useRetoDates";
+import { getChallengesByUser, updateReto } from "@/services/challenges";
 
 export default function ChallengesPage() {
 
     const router = useRouter();
     const user = useUserInfo();
-    const { data: retos, loading: retosLoading, error: retosError } = useAsync(
+    const { data: retos, loading: retosLoading, error: retosError, reload } = useAsync(
         () => (user ? getChallengesByUser(user.id_usuario) : Promise.resolve([])),
         [user?.id_usuario]
     );
-    const { progress, setProgress } = useRetoProgress(user?.id_usuario);
+    const { dates, markCompleted, clearCompleted } = useRetoDates(user?.id_usuario);
+
+    const [draft, setDraft] = useState<Record<number, number>>({});
+    const [savingId, setSavingId] = useState<number | null>(null);
+    const [feedback, setFeedback] = useState<string | null>(null);
+
+    const retosList = retos ?? [];
+    // Barra general = promedio del progreso real de cada reto.
+    const overall = retosList.length
+        ? Math.round(retosList.reduce((sum, r) => sum + (r.progreso_pct ?? 0), 0) / retosList.length)
+        : 0;
+
+    const handleSave = async (idReto: number, pct: number) => {
+        const value = Math.max(0, Math.min(100, Math.round(pct)));
+        setSavingId(idReto);
+        setFeedback(null);
+        try {
+            await updateReto(idReto, value); // PUT /retos/{id} -> persiste el progreso real
+            if (value >= 100) markCompleted(idReto);
+            else clearCompleted(idReto);
+            setDraft((d) => ({ ...d, [idReto]: value }));
+            reload();
+        } catch (e) {
+            setFeedback(e instanceof Error ? e.message : "No se pudo actualizar el reto.");
+        } finally {
+            setSavingId(null);
+        }
+    };
+
+    const formatDate = (iso: string) =>
+        new Date(iso).toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" });
+
     return (
         <div className="bg-surface text-on-surface min-h-screen relative overflow-x-hidden font-body bg-[#f7f9fc]">
             <style dangerouslySetInnerHTML={{
@@ -153,139 +184,137 @@ export default function ChallengesPage() {
                 {/* Barra lateral: Lista de comunidades a las que se ha unido el usuario */}
                 <aside className="hidden lg:block lg:col-span-3 space-y-8">
                     <div className="bg-surface-container-lowest rounded-xl p-6 shadow-ambient">
-                        <h3 className="font-headline font-semibold text-sm text-on-surface mb-6 font-headline">
-                            Mi primer reto de consciencia
-                        </h3>
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-4 p-3 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer group">
-                                <div className="w-12 h-12 rounded-full bg-primary-container/30 text-primary flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
-                                    <span className="material-symbols-outlined">local_bar</span>
-                                </div>
-                                <div>
-                                    <p className="font-medium text-xs text-on-surface">Superar el alcoholismo</p>
-                                    <p className="text-[10px] text-on-surface-variant">Miembro activo</p>
-                                </div>
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-12 h-12 rounded-full bg-primary-container/30 text-primary flex items-center justify-center shrink-0">
+                                <span className="material-symbols-outlined">flag</span>
                             </div>
-
-                            <div className="flex items-center gap-4 p-3 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer group">
-                                <div className="w-12 h-12 rounded-full bg-secondary-container/30 text-secondary flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
-                                    <span className="material-symbols-outlined">smoking_rooms</span>
-                                </div>
-                                <div>
-                                    <p className="font-medium text-xs text-on-surface">Dejar de fumar</p>
-                                    <p className="text-[10px] text-on-surface-variant">Miembro activo</p>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-4 p-3 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer group">
-                                <div className="w-12 h-12 rounded-full bg-tertiary-container/30 text-tertiary flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
-                                    <span className="material-symbols-outlined">psychology</span>
-                                </div>
-                                <div>
-                                    <p className="font-medium text-xs text-on-surface">Manejo de ansiedad</p>
-                                    <p className="text-[10px] text-on-surface-variant">Miembro activo</p>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-4 p-3 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer group">
-                                <div className="w-12 h-12 rounded-full bg-primary-container/20 text-primary flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
-                                    <span className="material-symbols-outlined">restaurant</span>
-                                </div>
-                                <div>
-                                    <p className="font-medium text-xs text-on-surface">Alimentación saludable</p>
-                                    <p className="text-[10px] text-on-surface-variant">Miembro activo</p>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-4 p-3 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer group">
-                                <div className="w-12 h-12 rounded-full bg-surface-container text-on-surface-variant flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
-                                    <span className="material-symbols-outlined">explore</span>
-                                </div>
-                                <div>
-                                    <p className="font-medium text-xs text-on-surface">Otros hábitos</p>
-                                    <p className="text-[10px] text-on-surface-variant">Miembro activo</p>
-                                </div>
-                            </div>
+                            <h3 className="font-headline font-semibold text-base text-on-surface">¿Cómo funcionan los retos?</h3>
                         </div>
+                        <p className="text-sm text-on-surface-variant leading-relaxed mb-5">
+                            Al unirte, recibes una serie de retos personales pensados para acompañar tu proceso,
+                            un paso a la vez. Avanza a tu propio ritmo: no hay prisa ni comparación.
+                        </p>
+                        <ul className="space-y-4">
+                            <li className="flex items-start gap-3">
+                                <span className="material-symbols-outlined text-primary text-xl shrink-0">tune</span>
+                                <p className="text-xs text-on-surface-variant leading-relaxed">
+                                    En cada reto indicas tu <span className="font-semibold text-on-surface">porcentaje de avance</span> y lo guardas.
+                                </p>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="material-symbols-outlined text-primary text-xl shrink-0">cloud_done</span>
+                                <p className="text-xs text-on-surface-variant leading-relaxed">
+                                    Tu progreso queda <span className="font-semibold text-on-surface">guardado</span> y disponible cada vez que regreses.
+                                </p>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="material-symbols-outlined text-primary text-xl shrink-0">check_circle</span>
+                                <p className="text-xs text-on-surface-variant leading-relaxed">
+                                    Al llegar al <span className="font-semibold text-on-surface">100%</span> el reto se marca como completado en tu roadmap.
+                                </p>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="material-symbols-outlined text-primary text-xl shrink-0">trending_up</span>
+                                <p className="text-xs text-on-surface-variant leading-relaxed">
+                                    Cada reto cumplido suma a tu <span className="font-semibold text-on-surface">progreso general</span>.
+                                </p>
+                            </li>
+                        </ul>
                     </div>
                 </aside>
 
                 {/* Main Panel: Dashboard & Challenge */}
                 <main className="lg:col-span-9 space-y-12">
-                    {/* Timeline de Mi primer reto de consciencia (Renderizado en el card superior exactamente como en la imagen) */}
+                    {/* Roadmap: progreso general + los 10 retos que se van completando */}
                     <section className="bg-surface-container-lowest rounded-xl p-8 md:p-12 shadow-ambient relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-primary-container rounded-full blur-[60px] opacity-40 -mr-20 -mt-20"></div>
-                        <div className="relative z-10 space-y-6">
-                            <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-surface-container-highest before:to-transparent">
-
-                                {/* Milestone 1 (Completed) */}
-                                <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-on-primary shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                                        <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
-                                            check
-                                        </span>
+                        <div className="relative z-10 space-y-8">
+                            {/* Barra de progreso general (promedio de todos los retos) */}
+                            <div>
+                                <div className="flex items-end justify-between mb-3">
+                                    <div>
+                                        <h2 className="font-headline font-bold text-2xl text-on-surface">Tu progreso general</h2>
+                                        <p className="text-sm text-on-surface-variant">Promedio de avance de todos tus retos.</p>
                                     </div>
-                                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-surface p-4 rounded-lg shadow-sm border border-outline-variant/10">
-                                        <div className="flex items-center justify-between space-x-2 mb-1">
-                                            <div className="font-bold text-on-surface text-sm">Día 1-2</div>
-                                            <div className="text-[10px] text-primary bg-primary-container px-2 py-0.5 rounded-full font-headline">23/5/2026</div>
-                                        </div>
-                                        <div className="text-on-surface-variant text-xs line-through">Identificar los obstáculos.</div>
-                                    </div>
+                                    <span className="font-headline font-bold text-3xl text-primary">{overall}%</span>
                                 </div>
-
-                                {/* Milestone 2 (Completed) */}
-                                <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-on-primary shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                                        <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
-                                            check
-                                        </span>
-                                    </div>
-                                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-surface p-4 rounded-lg shadow-sm border border-outline-variant/10">
-                                        <div className="flex items-center justify-between space-x-2 mb-1">
-                                            <div className="font-bold text-on-surface text-sm">Día 3-5</div>
-                                            <div className="text-[10px] text-primary bg-primary-container px-2 py-0.5 rounded-full font-headline">23/5/2026</div>
-                                        </div>
-                                        <div className="text-on-surface-variant text-xs line-through">Implementar primera técnica.</div>
-                                    </div>
+                                <div className="w-full h-4 bg-surface-container-highest rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full progress-gradient rounded-full transition-all duration-700"
+                                        style={{ width: `${overall}%` }}
+                                    ></div>
                                 </div>
-
-                                {/* Milestone 3 (Current) */}
-                                <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                                    <div className="flex items-center justify-center w-10 h-10 rounded-full bg-surface-container-lowest border-2 border-primary text-primary shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                                        <span className="material-symbols-outlined text-sm">radio_button_unchecked</span>
-                                    </div>
-                                    <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-primary-container/20 p-4 rounded-lg shadow-sm border border-primary/20">
-                                        <div className="flex items-center justify-between space-x-2 mb-1">
-                                            <div className="font-bold text-primary text-sm">Día 6-7</div>
-                                        </div>
-                                        <div className="text-primary-dim text-xs font-medium">Evaluar el progreso semanal.</div>
-                                        <div className="mt-2 flex justify-end">
-                                            <button className="text-[10px] bg-primary text-white px-3 py-1 rounded-full hover:bg-primary-dim transition-colors font-headline font-semibold">
-                                                Completar Reto
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-
                             </div>
+
+                            {/* Roadmap de los retos */}
+                            {retosList.length > 0 && (
+                                <div className="space-y-4">
+                                    {retosList.map((reto, i) => {
+                                        const isDone = (reto.progreso_pct ?? 0) >= 100;
+                                        const completedAt = dates[reto.id_reto];
+                                        return (
+                                            <div key={reto.id_reto} className="flex items-center gap-4">
+                                                <div
+                                                    className={`flex items-center justify-center w-10 h-10 rounded-full shrink-0 shadow ${
+                                                        isDone
+                                                            ? "bg-primary text-on-primary"
+                                                            : "bg-surface-container-lowest border-2 border-surface-container-highest text-on-surface-variant"
+                                                    }`}
+                                                >
+                                                    {isDone ? (
+                                                        <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
+                                                            check
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-sm font-bold font-headline">{i + 1}</span>
+                                                    )}
+                                                </div>
+                                                <div
+                                                    className={`flex-grow flex items-center justify-between gap-3 p-4 rounded-lg border ${
+                                                        isDone
+                                                            ? "bg-surface border-outline-variant/10"
+                                                            : "bg-surface-container-low/40 border-transparent"
+                                                    }`}
+                                                >
+                                                    <span className={`text-sm font-medium ${isDone ? "text-on-surface" : "text-on-surface-variant"}`}>
+                                                        {reto.titulo}
+                                                    </span>
+                                                    {isDone ? (
+                                                        <span className="text-[10px] text-primary bg-primary-container px-2 py-0.5 rounded-full font-headline shrink-0">
+                                                            {completedAt ? `Completado el ${formatDate(completedAt)}` : "Completado"}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-[10px] text-on-surface-variant shrink-0">{reto.progreso_pct ?? 0}%</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
                     </section>
 
-                    {/* Sección de Retos (datos reales del API; progreso por-usuario local) */}
+                    {/* Sección de Retos: progreso real, editable y persistido en el backend */}
                     <section>
-                        <h2 className="font-headline font-bold text-2xl text-on-surface mb-8">Mis Retos</h2>
+                        <h2 className="font-headline font-bold text-2xl text-on-surface mb-2">Mis Retos</h2>
+                        <p className="text-sm text-on-surface-variant mb-8">
+                            Indica tu porcentaje de avance en cada reto y guárdalo: se actualiza en tu cuenta.
+                        </p>
 
-                        {retosLoading && <p className="text-on-surface-variant">Cargando retos…</p>}
+                        {retosLoading && !retos && <p className="text-on-surface-variant">Cargando retos…</p>}
                         {retosError && <p className="text-error">{retosError}</p>}
-                        {!retosLoading && !retosError && retos?.length === 0 && (
-                            <p className="text-on-surface-variant">Aún no hay retos disponibles.</p>
+                        {feedback && <p className="text-error mb-4">{feedback}</p>}
+                        {!retosLoading && !retosError && retosList.length === 0 && (
+                            <p className="text-on-surface-variant">Aún no tienes retos asignados.</p>
                         )}
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {retos?.map((reto) => {
-                                const pct = progress[reto.id_reto] ?? reto.progreso_pct ?? 0;
+                            {retosList.map((reto) => {
+                                const pct = reto.progreso_pct ?? 0;
                                 const done = pct >= 100;
+                                const value = draft[reto.id_reto] ?? pct;
+                                const saving = savingId === reto.id_reto;
                                 return (
                                     <div
                                         key={reto.id_reto}
@@ -314,27 +343,39 @@ export default function ChallengesPage() {
                                                     style={{ width: `${pct}%` }}
                                                 ></div>
                                             </div>
-                                            <div className="flex flex-wrap gap-3 mt-4">
+
+                                            {/* Editor de porcentaje */}
+                                            <div className="flex flex-wrap items-center gap-3 mt-5">
+                                                <div className="flex items-center gap-2">
+                                                    <input
+                                                        type="number"
+                                                        min={0}
+                                                        max={100}
+                                                        value={value}
+                                                        onChange={(e) =>
+                                                            setDraft((d) => ({
+                                                                ...d,
+                                                                [reto.id_reto]: Number(e.target.value),
+                                                            }))
+                                                        }
+                                                        className="w-20 bg-surface-container-low rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary/30"
+                                                    />
+                                                    <span className="text-sm text-on-surface-variant">%</span>
+                                                </div>
                                                 <button
-                                                    onClick={() => setProgress(reto.id_reto, pct + 25)}
-                                                    disabled={done}
-                                                    className="text-xs bg-surface-container text-on-surface px-4 py-2 rounded-full hover:bg-surface-container-high transition-colors font-headline font-semibold disabled:opacity-40"
-                                                >
-                                                    +25%
-                                                </button>
-                                                <button
-                                                    onClick={() => setProgress(reto.id_reto, 100)}
-                                                    disabled={done}
+                                                    onClick={() => handleSave(reto.id_reto, value)}
+                                                    disabled={saving || value === pct}
                                                     className="text-xs bg-primary text-on-primary px-4 py-2 rounded-full hover:bg-primary-dim transition-colors font-headline font-semibold disabled:opacity-40"
                                                 >
-                                                    Completar Reto
+                                                    {saving ? "Guardando…" : "Guardar avance"}
                                                 </button>
-                                                {pct > 0 && (
+                                                {!done && (
                                                     <button
-                                                        onClick={() => setProgress(reto.id_reto, 0)}
-                                                        className="text-xs text-on-surface-variant px-4 py-2 rounded-full hover:text-error transition-colors font-headline font-semibold"
+                                                        onClick={() => handleSave(reto.id_reto, 100)}
+                                                        disabled={saving}
+                                                        className="text-xs bg-surface-container text-on-surface px-4 py-2 rounded-full hover:bg-surface-container-high transition-colors font-headline font-semibold disabled:opacity-40"
                                                     >
-                                                        Reiniciar
+                                                        Marcar completado
                                                     </button>
                                                 )}
                                             </div>

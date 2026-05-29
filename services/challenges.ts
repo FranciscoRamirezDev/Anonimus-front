@@ -1,4 +1,4 @@
-import { apiGet, apiFetch } from "@/lib/api";
+import { apiGet, apiPut, apiFetch } from "@/lib/api";
 import type { Reto, ListResponse } from "@/types/models";
 
 export async function listChallenges(limit = 1000, offset = 0): Promise<Reto[]> {
@@ -17,6 +17,11 @@ export async function getChallenge(id: number): Promise<Reto> {
 export async function getChallengesByUser(idUsuario: number): Promise<Reto[]> {
   const all = await listChallenges();
   return all.filter((r) => r.id_usuario === idUsuario);
+}
+
+// Actualiza el progreso real del reto en el backend (el reto es del usuario).
+export async function updateReto(id: number, progreso_pct: number): Promise<unknown> {
+  return apiPut(`/retos/${id}`, { progreso_pct });
 }
 
 // El dueño del reto se deriva del JWT en el backend (igual que las publicaciones).
