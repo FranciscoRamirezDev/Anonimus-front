@@ -109,16 +109,16 @@ export default function PrincipalPage() {
                                 </span>
                             </button>
                         </div>
-                        <button className="flex items-center gap-2 font-headline text-sm font-medium text-primary hover:text-primary-dim transition-colors hover:scale-105 ease-out">
+                        <div className="flex items-center gap-3 bg-surface-container-lowest px-4 py-2 rounded-full shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300 ease-out">
                             {user?.avatar_url && (
                                 <img
                                     alt="Avatar"
-                                    src={user.avatar_url}
                                     className="w-8 h-8 rounded-full object-cover"
+                                    src={user.avatar_url}
                                 />
                             )}
-                            <span className="text-indigo-500 font-bold">{user?.alias ?? "Mi Alias"}</span>
-                        </button>
+                            <span className="font-headline text-sm font-semibold text-primary">{user?.alias ?? "Mi Alias"}</span>
+                        </div>
                     </div>
                 </div>
             </nav>

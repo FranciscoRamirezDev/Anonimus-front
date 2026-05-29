@@ -86,16 +86,16 @@ export default function TableroExperienciasPage() {
                     <button className="text-on-surface-variant hover:text-primary transition-colors">
                         <span className="material-symbols-outlined">notifications</span>
                     </button>
-                    <button className="flex items-center gap-2 bg-gradient-to-r from-primary to-primary-dim text-on-primary px-5 py-2 rounded-full shadow-[0px_10px_20px_rgba(45,51,56,0.06)] hover:scale-105 transition-transform duration-300">
+                    <div className="flex items-center gap-3 bg-surface-container-lowest px-4 py-2 rounded-full shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300 ease-out">
                         {user?.avatar_url && (
                             <img
                                 alt="Avatar"
+                                className="w-8 h-8 rounded-full object-cover"
                                 src={user.avatar_url}
-                                className="w-7 h-7 rounded-full object-cover"
                             />
                         )}
-                        <span>{user?.alias ?? "Mi Alias"}</span>
-                    </button>
+                        <span className="font-headline text-sm font-semibold text-primary">{user?.alias ?? "Mi Alias"}</span>
+                    </div>
                 </div>
             </nav>
 
