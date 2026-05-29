@@ -6,13 +6,38 @@ import { useRouter } from "next/navigation";
 import { useUserInfo } from "@/hooks/useUserInfo";
 import { useAsync } from "@/hooks/useAsync";
 import { listCommunities } from "@/services/communities";
-import { communityIcon, decorativeMembers } from "@/lib/communityDecor";
+import { listPosts } from "@/services/posts";
+import { communityIcon } from "@/lib/communityDecor";
 
 export default function PrincipalPage() {
     const router = useRouter();
     const user = useUserInfo();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
-    const { data: communities, loading, error } = useAsync(() => listCommunities(), []);
+    const { data, loading, error } = useAsync(async () => {
+        const [comms, posts] = await Promise.all([listCommunities(), listPosts()]);
+
+        // "Miembros" reales = usuarios distintos que han publicado en cada comunidad.
+        const usersByCommunity: Record<number, Set<number>> = {};
+        for (const p of posts) {
+            (usersByCommunity[p.id_comunidad] ??= new Set()).add(p.id_usuario);
+        }
+        const membersByCommunity: Record<number, number> = {};
+        for (const cid in usersByCommunity) {
+            membersByCommunity[cid] = usersByCommunity[cid].size;
+        }
+
+        // Mis comunidades = donde el usuario tiene al menos una publicación.
+        const myIds = user
+            ? new Set(posts.filter((p) => p.id_usuario === user.id_usuario).map((p) => p.id_comunidad))
+            : new Set<number>();
+        const myCommunities = comms.filter((c) => myIds.has(c.id_comunidad));
+
+        return { communities: comms, membersByCommunity, myCommunities };
+    }, [user?.id_usuario]);
+
+    const communities = data?.communities;
+    const myCommunities = data?.myCommunities;
+    const membersByCommunity = data?.membersByCommunity ?? {};
 
     const handleLogout = () => {
         // Borrar todas las cookies
@@ -211,7 +236,44 @@ export default function PrincipalPage() {
                                 <p className="text-on-surface-variant mb-6 flex-grow capitalize">{c.categoria}</p>
                                 <div className="flex items-center text-sm text-on-surface-variant font-medium">
                                     <span className="material-symbols-outlined text-base mr-2">group</span>
-                                    <span>{decorativeMembers(c.id_comunidad)} miembros</span>
+                                    <span>{membersByCommunity[c.id_comunidad] ?? 0} miembros</span>
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+                </section>
+
+                {/* SECCIÓN MIS COMUNIDADES: solo donde el usuario ha publicado */}
+                <section className="space-y-12">
+                    <div className="text-center max-w-3xl mx-auto space-y-4">
+                        <h2 className="text-3xl md:text-4xl font-bold text-on-surface tracking-tight">Mis Comunidades</h2>
+                        <p className="text-on-surface-variant text-lg">
+                            Las comunidades donde has compartido al menos una publicación.
+                        </p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {loading && (
+                            <p className="col-span-full text-center text-on-surface-variant">Cargando tus comunidades…</p>
+                        )}
+                        {!loading && myCommunities?.length === 0 && (
+                            <p className="col-span-full text-center text-on-surface-variant">
+                                Aún no has publicado en ninguna comunidad. ¡Únete a una y comparte tu primera experiencia!
+                            </p>
+                        )}
+                        {myCommunities?.map((c) => (
+                            <button
+                                key={c.id_comunidad}
+                                onClick={() => router.push(`/communities/${c.id_comunidad}`)}
+                                className="text-left bg-surface-container-lowest rounded-[2rem] p-8 shadow-[0px_20px_40px_rgba(45,51,56,0.06)] hover:bg-primary-container/30 hover:-translate-y-2 transition-all duration-300 group flex flex-col cursor-pointer"
+                            >
+                                <div className="w-16 h-16 rounded-full bg-primary-container/30 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+                                    <span className="material-symbols-outlined text-3xl">{communityIcon(c.categoria)}</span>
+                                </div>
+                                <h3 className="text-xl font-bold text-on-surface mb-2">{c.nombre}</h3>
+                                <p className="text-on-surface-variant mb-6 flex-grow capitalize">{c.categoria}</p>
+                                <div className="flex items-center text-sm text-primary font-medium">
+                                    <span className="material-symbols-outlined text-base mr-2">check_circle</span>
+                                    <span>Has publicado aquí</span>
                                 </div>
                             </button>
                         ))}

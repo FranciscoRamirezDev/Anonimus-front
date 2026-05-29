@@ -5,6 +5,7 @@ import { useUserInfo } from "@/hooks/useUserInfo";
 import { useEffect, useState } from "react";
 import { useAsync } from "@/hooks/useAsync";
 import { listCommunities } from "@/services/communities";
+import { listPosts } from "@/services/posts";
 import { communityIcon, decorativeMembers } from "@/lib/communityDecor";
 
 export default function CommunitiesPage() {
@@ -12,6 +13,16 @@ export default function CommunitiesPage() {
     const user = useUserInfo();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const { data: communities, loading, error } = useAsync(() => listCommunities(), []);
+
+    // Mis comunidades = aquellas donde el usuario tiene al menos una publicación.
+    const { data: myCommunities, loading: myLoading } = useAsync(async () => {
+        if (!user) return [];
+        const [comms, posts] = await Promise.all([listCommunities(), listPosts()]);
+        const ids = new Set(
+            posts.filter((p) => p.id_usuario === user.id_usuario).map((p) => p.id_comunidad)
+        );
+        return comms.filter((c) => ids.has(c.id_comunidad));
+    }, [user?.id_usuario]);
 
     const handleLogout = () => {
         // Borrar todas las cookies
@@ -193,27 +204,45 @@ export default function CommunitiesPage() {
                         </p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="bg-surface-container-lowest rounded-[2rem] p-6 shadow-[0px_20px_40px_rgba(45,51,56,0.06)] hover:bg-surface-container-lowest/80 hover:-translate-y-2 transition-all duration-300 cursor-pointer reveal" style={{ transitionDelay: `${(i + 1) * 100}ms` }}>
+                        {myLoading && (
+                            <p className="md:col-span-2 text-center text-on-surface-variant">Cargando tus comunidades…</p>
+                        )}
+                        {!myLoading && myCommunities?.length === 0 && (
+                            <p className="md:col-span-2 text-center text-on-surface-variant">
+                                Aún no has publicado en ninguna comunidad. ¡Entra a una y comparte tu primera experiencia!
+                            </p>
+                        )}
+                        {myCommunities?.map((c) => (
+                            <button
+                                key={c.id_comunidad}
+                                onClick={() => router.push(`/communities/${c.id_comunidad}`)}
+                                className="text-left bg-surface-container-lowest rounded-[2rem] p-6 shadow-[0px_20px_40px_rgba(45,51,56,0.06)] hover:bg-primary-container/30 hover:-translate-y-2 transition-all duration-300 cursor-pointer"
+                            >
                                 <div className="flex items-center justify-between mb-4">
-                                    <div>
-                                        <h4 className="text-lg font-bold text-on-surface">Mi Comunidad {i}</h4>
-                                        <p className="text-xs text-on-surface-variant mt-1">Miembro desde hace 2 meses</p>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-12 h-12 rounded-full bg-primary-container/30 text-primary flex items-center justify-center shrink-0">
+                                            <span className="material-symbols-outlined">{communityIcon(c.categoria)}</span>
+                                        </div>
+                                        <div>
+                                            <h4 className="text-lg font-bold text-on-surface">{c.nombre}</h4>
+                                            <p className="text-xs text-on-surface-variant mt-1 capitalize">{c.categoria}</p>
+                                        </div>
                                     </div>
-                                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
                                         <span className="material-symbols-outlined text-primary">check_circle</span>
                                     </div>
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2 text-sm text-on-surface-variant">
-                                        <span className="material-symbols-outlined text-base">group</span>
-                                        <span>{30 + i * 15} participantes activos</span>
+                                    <div className="flex items-center gap-2 text-sm text-primary">
+                                        <span className="material-symbols-outlined text-base">edit_note</span>
+                                        <span>Has publicado aquí</span>
                                     </div>
-                                    <button className="text-primary font-medium hover:text-primary-dim text-sm">
-                                        Ver más
-                                    </button>
+                                    <span className="text-primary font-medium text-sm flex items-center">
+                                        Entrar
+                                        <span className="material-symbols-outlined ml-1 text-sm">arrow_forward</span>
+                                    </span>
                                 </div>
-                            </div>
+                            </button>
                         ))}
                     </div>
                 </section>
