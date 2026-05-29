@@ -123,7 +123,7 @@ export default function ChallengesPage() {
                     <div className="hidden md:flex space-x-8">
                         <a
                             className="text-on-surface-variant hover:text-primary transition-colors duration-300 font-headline text-sm font-medium hover:scale-105 ease-out cursor-pointer"
-                            onClick={() => router.push("/dashboard")}
+                            onClick={() => router.push("/communities")}
                         >
                             Comunidades
                         </a>

@@ -115,13 +115,7 @@ export default function CommunitiesPage() {
                         </a>
                     </div>
                     <div className="flex items-center space-x-6">
-                        <button
-                            onClick={() => setShowLogoutModal(true)}
-                            className="flex items-center justify-center w-10 h-10 rounded-full bg-surface-container-lowest hover:bg-surface-container transition-colors duration-300 ease-out"
-                            title="Cerrar sesión"
-                        >
-                            <span className="material-symbols-outlined text-on-surface-variant hover:text-error">logout</span>
-                        </button>
+                        
                         <div className="flex items-center gap-3 bg-surface-container-lowest px-4 py-2 rounded-full shadow-sm cursor-pointer hover:scale-105 transition-transform duration-300 ease-out">
                             <span className="font-headline text-sm font-semibold text-primary">{user?.alias ?? "Mi Alias"}</span>
                         </div>
@@ -140,14 +134,7 @@ export default function CommunitiesPage() {
                         <p className="text-lg text-on-surface-variant max-w-2xl mx-auto font-body leading-relaxed reveal delay-100">
                             Conecta con personas que comparten tus intereses y experiencias. Crece juntos en comunidades vibrantes y seguras donde tu anonimato es respetado.
                         </p>
-                        <div className="flex flex-wrap gap-4 pt-4 reveal delay-200 justify-center">
-                            <button className="bg-gradient-to-r from-primary to-primary-dim text-on-primary px-8 py-4 rounded-full font-headline font-semibold shadow-[0px_10px_20px_rgba(112,73,179,0.2)] hover:scale-[1.02] hover:shadow-[0px_15px_30px_rgba(112,73,179,0.4)] transition-all duration-300 ease-out">
-                                Explorar Comunidades
-                            </button>
-                            <button className="bg-transparent text-on-surface border border-outline-variant/30 px-8 py-4 rounded-full font-headline font-semibold hover:bg-surface-container-low transition-colors duration-300 ease-out">
-                                Mis Comunidades
-                            </button>
-                        </div>
+                       
                     </div>
                 </section>
 
@@ -173,7 +160,7 @@ export default function CommunitiesPage() {
                             <button
                                 key={c.id_comunidad}
                                 onClick={() => router.push(`/communities/${c.id_comunidad}`)}
-                                className="text-left bg-surface-container-lowest rounded-[2rem] p-8 shadow-[0px_20px_40px_rgba(45,51,56,0.06)] hover:bg-surface-container-lowest/80 hover:-translate-y-2 transition-all duration-300 group flex flex-col cursor-pointer"
+                                className="text-left bg-surface-container-lowest rounded-[2rem] p-8 shadow-[0px_20px_40px_rgba(45,51,56,0.06)]  hover:-translate-y-2 transition-all duration-300 group flex flex-col cursor-pointer hover:bg-primary-container/30 hover:shadow-lg"
                             >
                                 <div className="w-16 h-16 rounded-full bg-primary-container/30 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
                                     <span className="material-symbols-outlined text-3xl">{communityIcon(c.categoria)}</span>

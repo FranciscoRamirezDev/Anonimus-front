@@ -161,7 +161,7 @@ export default function PrincipalPage() {
                             proceso y encuentra la fuerza en la comunidad.
                         </p>
                         <div className="flex flex-wrap gap-4 pt-4 reveal delay-300">
-                            <button onClick={() => router.push("/communities")} className="bg-gradient-to-r from-primary to-primary-dim text-on-primary px-8 py-4 rounded-full font-headline font-semibold shadow-[0px_10px_20px_rgba(112,73,179,0.2)] hover:scale-[1.02] hover:shadow-[0px_15px_30px_rgba(112,73,179,0.4)] transition-all duration-300 ease-out">
+                            <button onClick={() => router.push("/challenges")} className="bg-gradient-to-r from-primary to-primary-dim text-on-primary px-8 py-4 rounded-full font-headline font-semibold shadow-[0px_10px_20px_rgba(112,73,179,0.2)] hover:scale-[1.02] hover:shadow-[0px_15px_30px_rgba(112,73,179,0.4)] transition-all duration-300 ease-out">
                                 Comenzar mi camino
                             </button>
                             <button onClick={() => router.push("/communities")} className="bg-transparent text-on-surface border border-outline-variant/30 px-8 py-4 rounded-full font-headline font-semibold hover:bg-surface-container-low transition-colors duration-300 ease-out">
