@@ -61,12 +61,11 @@ export default function LoginPage() {
   }, [toast]);
 
   const handleShuffleAvatars = () => {
-    // Shuffle the three avatars visually and pick a new selected one
+    // Baraja los avatares y selecciona uno al azar (según el tamaño del pool).
     const shuffled = [...avatars].sort(() => Math.random() - 0.5);
     setAvatars(shuffled);
-    // Select a random one
     // eslint-disable-next-line react-hooks/purity
-    setSelectedAvatarIdx(Math.floor(Math.random() * 3));
+    setSelectedAvatarIdx(Math.floor(Math.random() * shuffled.length));
     showToast("¡Avatares barajados con éxito!", "success");
   };
 
@@ -263,7 +262,7 @@ export default function LoginPage() {
               <label className="block text-sm font-semibold text-on-surface text-center">
                 Elige tu avatar anónimo
               </label>
-              <div className="flex justify-center items-center gap-4">
+              <div className="flex flex-wrap justify-center items-center gap-4">
                 {avatars.map((avatarUrl, idx) => {
                   const isSelected = selectedAvatarIdx === idx;
                   return (

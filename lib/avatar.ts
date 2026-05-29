@@ -19,4 +19,6 @@ export const AVATAR_OPTIONS: string[] = [
   avatarFromSeed("Luna", "fun-emoji"),
   avatarFromSeed("Milo", "bottts"),
   avatarFromSeed("Sol", "lorelei"),
+  avatarFromSeed("Nube", "adventurer"),
+  avatarFromSeed("Rio", "personas"),
 ];
