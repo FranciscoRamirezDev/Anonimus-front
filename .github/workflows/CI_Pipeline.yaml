@@ -1,0 +1,37 @@
+name: CI_PIPELINE
+
+# Se ejecuta al abrir, actualizar o reabrir un Pull Request hacia develop.
+on:
+  pull_request:
+    branches: [develop]
+
+# Cancela ejecuciones previas del mismo PR si llega un nuevo push.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-build:
+    name: Lint & Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+        env:
+          # Si defines este secret en el repo se usa; si no, el build cae al fallback.
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
