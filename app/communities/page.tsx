@@ -268,8 +268,8 @@ export default function CommunitiesPage() {
             <footer className="block w-full py-12 px-8 bg-surface-container-low shadow-[0px_-20px_40px_rgba(45,51,56,0.03)] no-line mt-24">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
                     <div>
-                        <div className="text-lg font-bold text-on-surface mb-4">Caminos de Apoyo</div>
-                        <p className="text-sm text-on-surface-variant">© 2024 Caminos de Apoyo. Tu anonimato es nuestra prioridad.</p>
+                        <div className="text-lg font-bold text-on-surface mb-4">Anonimus</div>
+                        <p className="text-sm text-on-surface-variant">© 2026 Anonimus. Tu anonimato es nuestra prioridad.</p>
                     </div>
                     <div className="md:col-span-2 flex justify-end space-x-8 items-center">
                         <a className="font-be-vietnam text-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer">

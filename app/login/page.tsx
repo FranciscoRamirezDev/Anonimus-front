@@ -105,7 +105,7 @@ export default function LoginPage() {
     // setTimeout(() => {
     //   setIsLoading(false);
     //   if (activeTab === "register") {
-    //     showToast("¡Registro exitoso! Bienvenido a Caminos de Apoyo.", "success");
+    //     showToast("¡Registro exitoso! Bienvenido a Anonimus.", "success");
     //   } else {
     //     showToast("¡Inicio de sesión exitoso! Bienvenido de vuelta.", "success");
     //   }
@@ -124,7 +124,7 @@ export default function LoginPage() {
               await seedDefaultRetos(response.token);
             }
             setIsLoading(false);
-            showToast("¡Registro exitoso! Bienvenido a Anonimus Caminos de Apoyo, ya pueden Ingresar.", "success");
+            showToast("¡Registro exitoso! Bienvenido a Anonimus Anonimus, ya pueden Ingresar.", "success");
             setActiveTab("login");
           } else {
             setIsLoading(false);
@@ -163,7 +163,7 @@ export default function LoginPage() {
           </div>
           <button 
             type="button"
-            onClick={() => showToast("Caminos de Apoyo es un espacio seguro y anónimo de salud mental y acompañamiento.", "success")}
+            onClick={() => showToast("Anonimus es un espacio seguro y anónimo de salud mental y acompañamiento.", "success")}
             className="text-[#8E94F2] hover:opacity-80 transition-opacity scale-95 duration-300 ease-out cursor-pointer flex items-center justify-center p-2 rounded-full hover:bg-[#8E94F2]/10"
           >
             <span className="material-symbols-outlined text-2xl">help_outline</span>
@@ -246,7 +246,7 @@ export default function LoginPage() {
                   Solo tú sabes quién eres.
                 </p>
                 <p className="text-xs text-on-surface-variant leading-tight">
-                  Tu privacidad es sagrada en Caminos de Apoyo.
+                  Tu privacidad es sagrada en Anonimus.
                 </p>
               </div>
             </div>

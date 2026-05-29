@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Caminos de Apoyo - Registro",
+  title: "Anonimus - Registro",
   description: "Un espacio seguro para sanar, compartir y crecer juntos.",
 };
 

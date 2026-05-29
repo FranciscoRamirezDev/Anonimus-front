@@ -465,7 +465,7 @@ export default function ChallengesPage() {
             {/* Pie de página institucional */}
             <footer className="hidden md:block w-full py-12 px-8 bg-surface-container-low text-sm font-be-vietnam text-on-surface-variant font-body">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                    <div className="text-lg font-bold text-on-surface font-headline">Caminos de Apoyo</div>
+                    <div className="text-lg font-bold text-on-surface font-headline">Anonimus</div>
                     <div className="flex gap-6 justify-center md:justify-start">
                         <a className="hover:text-primary transition-colors" href="#">
                             Privacidad
@@ -480,7 +480,7 @@ export default function ChallengesPage() {
                             Ayuda
                         </a>
                     </div>
-                    <div className="text-right">© 2024 Caminos de Apoyo. Tu anonimato es nuestra prioridad.</div>
+                    <div className="text-right">© 2026 Anonimus. Tu anonimato es nuestra prioridad.</div>
                 </div>
             </footer>
         </div>
