@@ -3,11 +3,19 @@
 import React from "react";
 import { useUserInfo } from "@/hooks/useUserInfo";
 import { useRouter } from "next/navigation";
+import { useAsync } from "@/hooks/useAsync";
+import { useRetoProgress } from "@/hooks/useRetoProgress";
+import { getChallengesByUser } from "@/services/challenges";
 
 export default function ChallengesPage() {
 
     const router = useRouter();
     const user = useUserInfo();
+    const { data: retos, loading: retosLoading, error: retosError } = useAsync(
+        () => (user ? getChallengesByUser(user.id_usuario) : Promise.resolve([])),
+        [user?.id_usuario]
+    );
+    const { progress, setProgress } = useRetoProgress(user?.id_usuario);
     return (
         <div className="bg-surface text-on-surface min-h-screen relative overflow-x-hidden font-body bg-[#f7f9fc]">
             <style dangerouslySetInnerHTML={{
@@ -264,80 +272,76 @@ export default function ChallengesPage() {
                         </div>
                     </section>
 
-                    {/* Sección del Reto Actual (Estilo Bento Grid) */}
+                    {/* Sección de Retos (datos reales del API; progreso por-usuario local) */}
                     <section>
-                        <h2 className="font-headline font-bold text-2xl text-on-surface mb-8">Reto Actual</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {/* Challenge Status Card */}
-                            <div className="bg-surface-container-lowest rounded-xl p-8 shadow-ambient flex flex-col justify-between">
-                                <div>
-                                    <div className="flex justify-between items-start mb-4">
-                                        <h3 className="font-headline font-semibold text-xl text-primary">De 3 cajetillas a 1 cajetilla</h3>
-                                        <span className="bg-tertiary-container text-on-tertiary-container px-3 py-1 rounded-full text-xs font-bold font-headline uppercase tracking-wide">
-                                            En Progreso
-                                        </span>
-                                    </div>
-                                    <p className="text-on-surface-variant text-sm mb-8 leading-relaxed">
-                                        Reducción gradual y consciente del consumo diario. Enfócate en identificar los momentos de mayor ansiedad.
-                                    </p>
-                                </div>
-                                <div>
-                                    <div className="flex justify-between text-sm mb-2 text-on-surface-variant font-medium">
-                                        <span>Progreso Semanal</span>
-                                        <span>67%</span>
-                                    </div>
-                                    <div className="w-full h-3 bg-surface-container-highest rounded-full overflow-hidden">
-                                        <div className="h-full progress-gradient w-[67%] rounded-full"></div>
-                                    </div>
-                                </div>
-                            </div>
+                        <h2 className="font-headline font-bold text-2xl text-on-surface mb-8">Mis Retos</h2>
 
-                            {/* Línea de tiempo de hitos semanales */}
-                            <div className="bg-surface-container-lowest rounded-xl p-8 shadow-ambient">
-                                <h4 className="font-headline font-semibold text-lg text-on-surface mb-6 font-headline">Hitos de esta semana</h4>
-                                <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-surface-container-highest before:to-transparent">
-                                    {/* Milestone 1 (Completed) */}
-                                    <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary text-on-primary shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                                            <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
-                                                check
+                        {retosLoading && <p className="text-on-surface-variant">Cargando retos…</p>}
+                        {retosError && <p className="text-error">{retosError}</p>}
+                        {!retosLoading && !retosError && retos?.length === 0 && (
+                            <p className="text-on-surface-variant">Aún no hay retos disponibles.</p>
+                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            {retos?.map((reto) => {
+                                const pct = progress[reto.id_reto] ?? reto.progreso_pct ?? 0;
+                                const done = pct >= 100;
+                                return (
+                                    <div
+                                        key={reto.id_reto}
+                                        className="bg-surface-container-lowest rounded-xl p-8 shadow-ambient flex flex-col justify-between gap-6"
+                                    >
+                                        <div className="flex justify-between items-start gap-3">
+                                            <h3 className="font-headline font-semibold text-xl text-primary">{reto.titulo}</h3>
+                                            <span
+                                                className={`px-3 py-1 rounded-full text-xs font-bold font-headline uppercase tracking-wide shrink-0 ${
+                                                    done
+                                                        ? "bg-primary-container text-on-primary-container"
+                                                        : "bg-tertiary-container text-on-tertiary-container"
+                                                }`}
+                                            >
+                                                {done ? "Completado" : "En Progreso"}
                                             </span>
                                         </div>
-                                        <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-surface p-4 rounded-lg shadow-sm border border-outline-variant/10">
-                                            <div className="flex items-center justify-between space-x-2 mb-1">
-                                                <div className="font-bold text-on-surface text-sm">Día 1-2</div>
+                                        <div>
+                                            <div className="flex justify-between text-sm mb-2 text-on-surface-variant font-medium">
+                                                <span>Tu progreso</span>
+                                                <span>{pct}%</span>
                                             </div>
-                                            <div className="text-on-surface-variant text-xs">Mantener máximo 2 cajetillas.</div>
+                                            <div className="w-full h-3 bg-surface-container-highest rounded-full overflow-hidden">
+                                                <div
+                                                    className="h-full progress-gradient rounded-full transition-all duration-500"
+                                                    style={{ width: `${pct}%` }}
+                                                ></div>
+                                            </div>
+                                            <div className="flex flex-wrap gap-3 mt-4">
+                                                <button
+                                                    onClick={() => setProgress(reto.id_reto, pct + 25)}
+                                                    disabled={done}
+                                                    className="text-xs bg-surface-container text-on-surface px-4 py-2 rounded-full hover:bg-surface-container-high transition-colors font-headline font-semibold disabled:opacity-40"
+                                                >
+                                                    +25%
+                                                </button>
+                                                <button
+                                                    onClick={() => setProgress(reto.id_reto, 100)}
+                                                    disabled={done}
+                                                    className="text-xs bg-primary text-on-primary px-4 py-2 rounded-full hover:bg-primary-dim transition-colors font-headline font-semibold disabled:opacity-40"
+                                                >
+                                                    Completar Reto
+                                                </button>
+                                                {pct > 0 && (
+                                                    <button
+                                                        onClick={() => setProgress(reto.id_reto, 0)}
+                                                        className="text-xs text-on-surface-variant px-4 py-2 rounded-full hover:text-error transition-colors font-headline font-semibold"
+                                                    >
+                                                        Reiniciar
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
-
-                                    {/* Milestone 2 (Current) */}
-                                    <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-surface-container-lowest border-2 border-primary text-primary shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                                            <span className="material-symbols-outlined text-sm">radio_button_unchecked</span>
-                                        </div>
-                                        <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] bg-primary-container/20 p-4 rounded-lg shadow-sm border border-primary/20">
-                                            <div className="flex items-center justify-between space-x-2 mb-1">
-                                                <div className="font-bold text-primary text-sm">Día 3-5</div>
-                                            </div>
-                                            <div className="text-primary-dim text-xs font-medium">Bajar a 1.5 cajetillas. (Hoy)</div>
-                                        </div>
-                                    </div>
-
-                                    {/* Milestone 3 (Future) */}
-                                    <div className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-surface-container-highest text-outline shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
-                                            <span className="material-symbols-outlined text-sm">lock</span>
-                                        </div>
-                                        <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] opacity-60">
-                                            <div className="flex items-center justify-between space-x-2 mb-1">
-                                                <div className="font-bold text-on-surface-variant text-sm">Día 6-7</div>
-                                            </div>
-                                            <div className="text-on-surface-variant text-xs">Meta: 1 cajetilla diaria.</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                );
+                            })}
                         </div>
                     </section>
                 </main>
@@ -354,22 +358,22 @@ export default function ChallengesPage() {
             {/* Navegación móvil inferior */}
             <nav className="md:hidden fixed bottom-0 w-full rounded-t-[3rem] z-50 bottom-nav-bg shadow-[0px_-10px_30px_rgba(0,0,0,0.04)] flex justify-around items-center px-6 pb-6 pt-3">
                 <a
-                    className="flex flex-col items-center justify-center text-slate-400 hover:bg-slate-50 transition-colors spring-stiffness-100 duration-500 rounded-lg p-2"
-                    href="principal.html"
+                    className="flex flex-col items-center justify-center text-slate-400 hover:bg-slate-50 transition-colors spring-stiffness-100 duration-500 rounded-lg p-2 cursor-pointer"
+                    onClick={() => router.push("/dashboard")}
                 >
                     <span className="material-symbols-outlined mb-1">home</span>
                     <span className="font-plus-jakarta text-[10px] font-semibold">Inicio</span>
                 </a>
                 <a
-                    className="flex flex-col items-center justify-center text-slate-400 hover:bg-slate-50 transition-colors spring-stiffness-100 duration-500 rounded-lg p-2"
-                    href="principal.html#comunidades"
+                    className="flex flex-col items-center justify-center text-slate-400 hover:bg-slate-50 transition-colors spring-stiffness-100 duration-500 rounded-lg p-2 cursor-pointer"
+                    onClick={() => router.push("/communities")}
                 >
                     <span className="material-symbols-outlined mb-1">group</span>
                     <span className="font-plus-jakarta text-[10px] font-semibold">Grupos</span>
                 </a>
                 <a
-                    className="flex flex-col items-center justify-center bg-indigo-50 text-indigo-700 rounded-full px-5 py-2 transition-colors spring-stiffness-100 duration-500"
-                    href="profile.html"
+                    className="flex flex-col items-center justify-center bg-indigo-50 text-indigo-700 rounded-full px-5 py-2 transition-colors spring-stiffness-100 duration-500 cursor-pointer"
+                    onClick={() => router.push("/challenges")}
                 >
                     <span className="material-symbols-outlined mb-1" style={{ fontVariationSettings: "'FILL' 1" }}>
                         military_tech
@@ -377,8 +381,8 @@ export default function ChallengesPage() {
                     <span className="font-plus-jakarta text-[10px] font-semibold">Retos</span>
                 </a>
                 <a
-                    className="flex flex-col items-center justify-center text-slate-400 hover:bg-slate-50 transition-colors spring-stiffness-100 duration-500 rounded-lg p-2"
-                    href="seccion.html"
+                    className="flex flex-col items-center justify-center text-slate-400 hover:bg-slate-50 transition-colors spring-stiffness-100 duration-500 rounded-lg p-2 cursor-pointer"
+                    onClick={() => router.push("/experiences")}
                 >
                     <span className="material-symbols-outlined mb-1">forum</span>
                     <span className="font-plus-jakarta text-[10px] font-semibold">Muro</span>

@@ -4,10 +4,27 @@
 import React from "react";
 import { useUserInfo } from "@/hooks/useUserInfo";
 import { useRouter } from "next/navigation";
+import { useAsync } from "@/hooks/useAsync";
+import { listPosts } from "@/services/posts";
+import { listCommunities } from "@/services/communities";
+import { listReactions } from "@/services/reactions";
+import { buildUserMap } from "@/services/users";
+import UserAvatar from "@/components/UserAvatar";
 
 export default function TableroExperienciasPage() {
     const router = useRouter();
     const user = useUserInfo();
+    const { data, loading, error } = useAsync(async () => {
+        const [posts, users, communities, reactions] = await Promise.all([
+            listPosts(),
+            buildUserMap(),
+            listCommunities(),
+            listReactions(),
+        ]);
+        const communityName = new Map(communities.map((c) => [c.id_comunidad, c.nombre]));
+        const shuffled = [...posts].sort(() => Math.random() - 0.5);
+        return { posts: shuffled, users, communityName, reactions };
+    }, []);
 
     return (
         <div className="antialiased min-h-screen flex flex-col relative overflow-x-hidden bg-[#f7f9fc] text-[#2d3338] font-body">
@@ -109,34 +126,22 @@ export default function TableroExperienciasPage() {
 
                 {/* Filters & Composer (Bento-ish layout) */}
                 <section className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {/* Area de publicación (Composer): Donde el usuario escribe su experiencia */}
-                    <div className="md:col-span-2 bg-surface-container-lowest rounded-xl p-8 shadow-[0px_20px_40px_rgba(45,51,56,0.06)] relative overflow-hidden group">
+                    {/* El muro es de solo lectura: publicar se hace dentro de una comunidad */}
+                    <div className="md:col-span-2 bg-surface-container-lowest rounded-xl p-8 shadow-[0px_20px_40px_rgba(45,51,56,0.06)] relative overflow-hidden group flex items-center gap-4">
                         <div className="absolute inset-0 bg-gradient-to-br from-primary-fixed/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
-                        <div className="flex items-start gap-4 relative z-10">
-                            <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center shrink-0">
-                                <span className="material-symbols-outlined text-primary-dim">face</span>
-                            </div>
-                            <div className="flex-grow space-y-4">
-                                <textarea
-                                    className="w-full bg-transparent border-none focus:ring-0 resize-none text-lg text-on-surface placeholder:text-on-surface-variant/50 p-0 outline-none"
-                                    placeholder="Comparte tu experiencia. Tu anonimato es nuestra prioridad..."
-                                    rows={3}
-                                ></textarea>
-                                <div className="flex justify-between items-center pt-4">
-                                    <div className="flex gap-2">
-                                        <button className="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container-low">
-                                            <span className="material-symbols-outlined">mood</span>
-                                        </button>
-                                        <button className="text-on-surface-variant hover:text-primary transition-colors p-2 rounded-full hover:bg-surface-container-low">
-                                            <span className="material-symbols-outlined">label</span>
-                                        </button>
-                                    </div>
-                                    <button className="bg-gradient-to-r from-primary to-primary-dim text-on-primary px-6 py-2.5 rounded-full font-medium shadow-[0px_10px_20px_rgba(45,51,56,0.06)] hover:scale-105 transition-transform duration-300">
-                                        Publicar
-                                    </button>
-                                </div>
-                            </div>
+                        <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center shrink-0 relative z-10">
+                            <span className="material-symbols-outlined text-primary-dim">forum</span>
                         </div>
+                        <div className="flex-grow relative z-10">
+                            <p className="text-on-surface font-medium">¿Quieres compartir tu experiencia?</p>
+                            <p className="text-on-surface-variant text-sm">Las publicaciones se crean dentro de una comunidad.</p>
+                        </div>
+                        <button
+                            onClick={() => router.push("/communities")}
+                            className="relative z-10 bg-gradient-to-r from-primary to-primary-dim text-on-primary px-6 py-2.5 rounded-full font-medium shadow-[0px_10px_20px_rgba(45,51,56,0.06)] hover:scale-105 transition-transform duration-300 shrink-0"
+                        >
+                            Ir a comunidades
+                        </button>
                     </div>
 
                     {/* Filtros de navegación lateral: Recientes, Inspirador, Salas */}
@@ -165,94 +170,80 @@ export default function TableroExperienciasPage() {
                     </div>
                 </section>
 
-                {/* Muro de publicaciones (Feed): Lista de historias compartidas */}
+                {/* Muro de publicaciones (Feed): publicaciones reales de los usuarios */}
                 <section className="space-y-8">
-                    {/* Post 1 */}
-                    <article className="bg-surface-container-lowest rounded-xl p-8 shadow-[0px_20px_40px_rgba(45,51,56,0.06)] hover:shadow-[0px_30px_50px_rgba(45,51,56,0.08)] transition-all duration-300 group">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-sm">
-                                C
-                            </div>
-                            <div>
-                                <p className="font-headline font-semibold text-on-surface">Caminante #4829</p>
-                                <p className="text-xs text-on-surface-variant">
-                                    Hace 2 horas en <span className="text-primary">Ansiedad</span>
-                                </p>
-                            </div>
-                        </div>
-                        <p className="text-on-surface leading-relaxed mb-6 text-lg">
-                            Hoy logré salir de casa después de tres días sin energía. Solo fui a la tienda de la esquina, pero para mí
-                            es un gran paso. A veces las pequeñas victorias son las que más cuestan.
+                    {loading && <p className="text-center text-on-surface-variant">Cargando experiencias…</p>}
+                    {error && <p className="text-center text-error">{error}</p>}
+                    {!loading && !error && data?.posts.length === 0 && (
+                        <p className="text-center text-on-surface-variant">
+                            Aún no hay publicaciones. Entra a una comunidad y comparte la primera.
                         </p>
-                        <div className="flex items-center gap-4 pt-4 border-t border-outline-variant/15">
-                            <button className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors px-3 py-1.5 rounded-full hover:bg-surface-container-low">
-                                <span className="material-symbols-outlined text-xl">favorite</span>
-                                <span className="text-sm font-medium">Me siento identificado</span>
-                            </button>
-                            <button className="flex items-center gap-2 text-on-surface-variant hover:text-secondary transition-colors px-3 py-1.5 rounded-full hover:bg-surface-container-low">
-                                <span className="material-symbols-outlined text-xl">healing</span>
-                                <span className="text-sm font-medium">Esto me ayudó</span>
-                            </button>
-                        </div>
-                    </article>
-
-                    {/* Post 2 (Slightly varied visual treatment for rhythm) */}
-                    <article className="bg-surface-container-low rounded-xl p-8 relative overflow-hidden group">
-                        <div className="absolute -right-10 -top-10 w-32 h-32 bg-primary-fixed/30 rounded-full blur-2xl pointer-events-none"></div>
-                        <div className="flex items-center gap-3 mb-4 relative z-10">
-                            <div className="w-10 h-10 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center font-bold text-sm">
-                                C
-                            </div>
-                            <div>
-                                <p className="font-headline font-semibold text-on-surface">Caminante #9102</p>
-                                <p className="text-xs text-on-surface-variant">
-                                    Hace 5 horas en <span className="text-primary">Duelo</span>
-                                </p>
-                            </div>
-                        </div>
-                        <p className="text-on-surface leading-relaxed mb-6 text-lg relative z-10">
-                            Escribir una carta que nunca enviaré me ha quitado un peso enorme de encima. Gracias a quien lo sugirió en
-                            este foro la semana pasada. Realmente funciona.
-                        </p>
-                        <div className="flex items-center gap-4 pt-4 relative z-10 border-t border-outline-variant/15">
-                            <button className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors px-3 py-1.5 rounded-full hover:bg-surface-container">
-                                <span className="material-symbols-outlined text-xl">favorite</span>
-                            </button>
-                            <button className="flex items-center gap-2 text-secondary px-3 py-1.5 rounded-full bg-secondary-container/50">
-                                <span className="material-symbols-outlined text-xl fill">healing</span>
-                                <span className="text-sm font-medium">Esto me ayudó</span>
-                            </button>
-                        </div>
-                    </article>
+                    )}
+                    {data?.posts.map((post) => {
+                        const author = data.users.get(post.id_usuario);
+                        const alias = author?.alias ?? `Usuario #${post.id_usuario}`;
+                        const sala = data.communityName.get(post.id_comunidad) ?? "una comunidad";
+                        const reactions = data.reactions.filter((r) => r.id_publicacion === post.id_publicacion);
+                        const loveCount = reactions.filter((r) => r.tipo_reaccion === "love").length;
+                        const likeCount = reactions.filter((r) => r.tipo_reaccion === "like").length;
+                        return (
+                            <article
+                                key={post.id_publicacion}
+                                className="bg-surface-container-lowest rounded-xl p-8 shadow-[0px_20px_40px_rgba(45,51,56,0.06)] hover:shadow-[0px_30px_50px_rgba(45,51,56,0.08)] transition-all duration-300"
+                            >
+                                <div className="flex items-center gap-3 mb-4">
+                                    <UserAvatar alias={alias} avatarUrl={author?.avatar_url} />
+                                    <div>
+                                        <p className="font-headline font-semibold text-on-surface">{alias}</p>
+                                        <p className="text-xs text-on-surface-variant">
+                                            {new Date(post.fecha_pub).toLocaleString("es-MX")} en{" "}
+                                            <span className="text-primary">{sala}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <p className="text-on-surface leading-relaxed mb-6 text-lg whitespace-pre-wrap">{post.contenido}</p>
+                                <div className="flex items-center gap-6 pt-4 border-t border-outline-variant/15 text-on-surface-variant">
+                                    <span className="flex items-center gap-2">
+                                        <span className="material-symbols-outlined text-xl">favorite</span>
+                                        <span className="text-sm font-medium">{loveCount}</span>
+                                    </span>
+                                    <span className="flex items-center gap-2">
+                                        <span className="material-symbols-outlined text-xl">volunteer_activism</span>
+                                        <span className="text-sm font-medium">{likeCount}</span>
+                                    </span>
+                                </div>
+                            </article>
+                        );
+                    })}
                 </section>
             </main>
 
             {/* Navegación móvil inferior */}
             <nav className="md:hidden fixed bottom-0 w-full rounded-t-[3rem] z-50 bg-white/80 backdrop-blur-lg shadow-[0px_-10px_30px_rgba(0,0,0,0.04)] flex justify-around items-center px-6 pb-6 pt-3 font-plus-jakarta text-[10px] font-semibold">
                 <a
-                    className="flex flex-col items-center justify-center text-slate-400 hover:bg-slate-50 rounded-full px-4 py-2 transition-colors"
-                    href="principal.html"
+                    className="flex flex-col items-center justify-center text-slate-400 hover:bg-slate-50 rounded-full px-4 py-2 transition-colors cursor-pointer"
+                    onClick={() => router.push("/dashboard")}
                 >
                     <span className="material-symbols-outlined mb-1">home</span>
                     Inicio
                 </a>
                 <a
-                    className="flex flex-col items-center justify-center text-slate-400 hover:bg-slate-50 rounded-full px-4 py-2 transition-colors"
-                    href="principal.html#comunidades"
+                    className="flex flex-col items-center justify-center text-slate-400 hover:bg-slate-50 rounded-full px-4 py-2 transition-colors cursor-pointer"
+                    onClick={() => router.push("/communities")}
                 >
                     <span className="material-symbols-outlined mb-1">group</span>
                     Grupos
                 </a>
                 <a
-                    className="flex flex-col items-center justify-center text-slate-400 hover:bg-slate-50 rounded-full px-4 py-2 transition-colors nav-retos"
-                    href="login.html"
+                    className="flex flex-col items-center justify-center text-slate-400 hover:bg-slate-50 rounded-full px-4 py-2 transition-colors nav-retos cursor-pointer"
+                    onClick={() => router.push("/challenges")}
                 >
                     <span className="material-symbols-outlined mb-1">military_tech</span>
                     Retos
                 </a>
                 <a
-                    className="flex flex-col items-center justify-center bg-primary-container/30 text-primary rounded-full px-5 py-2"
-                    href="seccion.html"
+                    className="flex flex-col items-center justify-center bg-primary-container/30 text-primary rounded-full px-5 py-2 cursor-pointer"
+                    onClick={() => router.push("/experiences")}
                 >
                     <span className="material-symbols-outlined mb-1 fill">forum</span>
                     Muro

@@ -4,11 +4,15 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useUserInfo } from "@/hooks/useUserInfo";
+import { useAsync } from "@/hooks/useAsync";
+import { listCommunities } from "@/services/communities";
+import { communityIcon, decorativeMembers } from "@/lib/communityDecor";
 
 export default function PrincipalPage() {
     const router = useRouter();
     const user = useUserInfo();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const { data: communities, loading, error } = useAsync(() => listCommunities(), []);
 
     const handleLogout = () => {
         // Borrar todas las cookies
@@ -157,10 +161,10 @@ export default function PrincipalPage() {
                             proceso y encuentra la fuerza en la comunidad.
                         </p>
                         <div className="flex flex-wrap gap-4 pt-4 reveal delay-300">
-                            <button className="bg-gradient-to-r from-primary to-primary-dim text-on-primary px-8 py-4 rounded-full font-headline font-semibold shadow-[0px_10px_20px_rgba(112,73,179,0.2)] hover:scale-[1.02] hover:shadow-[0px_15px_30px_rgba(112,73,179,0.4)] transition-all duration-300 ease-out">
+                            <button onClick={() => router.push("/communities")} className="bg-gradient-to-r from-primary to-primary-dim text-on-primary px-8 py-4 rounded-full font-headline font-semibold shadow-[0px_10px_20px_rgba(112,73,179,0.2)] hover:scale-[1.02] hover:shadow-[0px_15px_30px_rgba(112,73,179,0.4)] transition-all duration-300 ease-out">
                                 Comenzar mi camino
                             </button>
-                            <button className="bg-transparent text-on-surface border border-outline-variant/30 px-8 py-4 rounded-full font-headline font-semibold hover:bg-surface-container-low transition-colors duration-300 ease-out">
+                            <button onClick={() => router.push("/communities")} className="bg-transparent text-on-surface border border-outline-variant/30 px-8 py-4 rounded-full font-headline font-semibold hover:bg-surface-container-low transition-colors duration-300 ease-out">
                                 Conocer comunidades
                             </button>
                         </div>
@@ -185,83 +189,32 @@ export default function PrincipalPage() {
                         </p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {/* Card 1 */}
-                        <div className="bg-surface-container-lowest rounded-[2rem] p-8 shadow-[0px_20px_40px_rgba(45,51,56,0.06)] hover:bg-surface-container-lowest/80 hover:-translate-y-2 transition-all duration-300 group flex flex-col reveal delay-100">
-                            <div className="w-16 h-16 rounded-full bg-primary-container/30 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
-                                <span className="material-symbols-outlined text-3xl">local_bar</span>
-                            </div>
-                            <h3 className="text-xl font-bold text-on-surface mb-2">Superar el alcoholismo</h3>
-                            <p className="text-on-surface-variant mb-6 flex-grow">
-                                Un espacio para compartir estrategias, celebrar días limpios y encontrar aliento en momentos difíciles.
-                            </p>
-                            <div className="flex items-center text-sm text-on-surface-variant font-medium">
-                                <span className="material-symbols-outlined text-base mr-2">group</span>
-                                <span>1,240 miembros</span>
-                            </div>
-                        </div>
-                        {/* Card 2 */}
-                        <div className="bg-surface-container-lowest rounded-[2rem] p-8 shadow-[0px_20px_40px_rgba(45,51,56,0.06)] hover:bg-surface-container-lowest/80 hover:-translate-y-2 transition-all duration-300 group flex flex-col reveal delay-200">
-                            <div className="w-16 h-16 rounded-full bg-secondary-container/30 flex items-center justify-center text-secondary mb-6 group-hover:scale-110 transition-transform">
-                                <span className="material-symbols-outlined text-3xl">smoking_rooms</span>
-                            </div>
-                            <h3 className="text-xl font-bold text-on-surface mb-2">Dejar de fumar</h3>
-                            <p className="text-on-surface-variant mb-6 flex-grow">
-                                Recursos, tips y apoyo moral para superar la dependencia al tabaco día a día.
-                            </p>
-                            <div className="flex items-center text-sm text-on-surface-variant font-medium">
-                                <span className="material-symbols-outlined text-base mr-2">group</span>
-                                <span>3,500 miembros</span>
-                            </div>
-                        </div>
-                        {/* Card 3 */}
-                        <div className="bg-surface-container-lowest rounded-[2rem] p-8 shadow-[0px_20px_40px_rgba(45,51,56,0.06)] hover:bg-surface-container-lowest/80 hover:-translate-y-2 transition-all duration-300 group flex flex-col reveal delay-300">
-                            <div className="w-16 h-16 rounded-full bg-tertiary-container/30 flex items-center justify-center text-tertiary mb-6 group-hover:scale-110 transition-transform">
-                                <span className="material-symbols-outlined text-3xl">psychology</span>
-                            </div>
-                            <h3 className="text-xl font-bold text-on-surface mb-2">Manejo de ansiedad</h3>
-                            <p className="text-on-surface-variant mb-6 flex-grow">
-                                Herramientas de relajación, experiencias compartidas y contención emocional segura.
-                            </p>
-                            <div className="flex items-center text-sm text-on-surface-variant font-medium">
-                                <span className="material-symbols-outlined text-base mr-2">group</span>
-                                <span>5,120 miembros</span>
-                            </div>
-                        </div>
-                        {/* Card 4 */}
-                        <div className="bg-surface-container-lowest rounded-[2rem] p-8 shadow-[0px_20px_40px_rgba(45,51,56,0.06)] hover:bg-surface-container-lowest/80 hover:-translate-y-2 transition-all duration-300 group flex flex-col reveal delay-100">
-                            <div className="w-16 h-16 rounded-full bg-primary-container/20 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
-                                <span className="material-symbols-outlined text-3xl">restaurant</span>
-                            </div>
-                            <h3 className="text-xl font-bold text-on-surface mb-2">Alimentación saludable</h3>
-                            <p className="text-on-surface-variant mb-6 flex-grow">
-                                Motivación, recetas e historias de éxito para transformar tu relación con la comida.
-                            </p>
-                            <div className="flex items-center text-sm text-on-surface-variant font-medium">
-                                <span className="material-symbols-outlined text-base mr-2">group</span>
-                                <span>2,890 miembros</span>
-                            </div>
-                        </div>
-                        {/* Card 5 */}
-                        <div className="md:col-span-2 lg:col-span-1 bg-surface-container-lowest rounded-[2rem] p-8 shadow-[0px_20px_40px_rgba(45,51,56,0.06)] hover:bg-surface-container-lowest/80 hover:-translate-y-2 transition-all duration-300 group flex flex-col relative overflow-hidden reveal delay-200">
-                            <div className="w-16 h-16 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant mb-6 group-hover:scale-110 transition-transform">
-                                <span className="material-symbols-outlined text-3xl">explore</span>
-                            </div>
-                            <h3 className="text-xl font-bold text-on-surface mb-2">Otros hábitos</h3>
-                            <p className="text-on-surface-variant mb-6 flex-grow">
-                                Si tu objetivo no está listado, aquí encontrarás apoyo general para construir nuevas y mejores rutinas
-                                en tu vida diaria.
-                            </p>
-                            <div className="flex items-center justify-between w-full">
+                        {loading && (
+                            <p className="col-span-full text-center text-on-surface-variant">Cargando comunidades…</p>
+                        )}
+                        {error && (
+                            <p className="col-span-full text-center text-error">{error}</p>
+                        )}
+                        {!loading && !error && communities?.length === 0 && (
+                            <p className="col-span-full text-center text-on-surface-variant">Aún no hay comunidades disponibles.</p>
+                        )}
+                        {communities?.map((c) => (
+                            <button
+                                key={c.id_comunidad}
+                                onClick={() => router.push(`/communities/${c.id_comunidad}`)}
+                                className="text-left bg-surface-container-lowest rounded-[2rem] p-8 shadow-[0px_20px_40px_rgba(45,51,56,0.06)] hover:bg-surface-container-lowest/80 hover:-translate-y-2 transition-all duration-300 group flex flex-col cursor-pointer"
+                            >
+                                <div className="w-16 h-16 rounded-full bg-primary-container/30 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
+                                    <span className="material-symbols-outlined text-3xl">{communityIcon(c.categoria)}</span>
+                                </div>
+                                <h3 className="text-xl font-bold text-on-surface mb-2">{c.nombre}</h3>
+                                <p className="text-on-surface-variant mb-6 flex-grow capitalize">{c.categoria}</p>
                                 <div className="flex items-center text-sm text-on-surface-variant font-medium">
                                     <span className="material-symbols-outlined text-base mr-2">group</span>
-                                    <span>8,400+ miembros</span>
+                                    <span>{decorativeMembers(c.id_comunidad)} miembros</span>
                                 </div>
-                                <button className="text-primary font-medium hover:text-primary-dim flex items-center">
-                                    Explorar más
-                                    <span className="material-symbols-outlined ml-1 text-sm">arrow_forward</span>
-                                </button>
-                            </div>
-                        </div>
+                            </button>
+                        ))}
                     </div>
                 </section>
             </main>

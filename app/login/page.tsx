@@ -3,6 +3,8 @@
 
 import { registerUserService } from "@/services/register";
 import { loginUserService } from "@/services/login";
+import { seedDefaultRetos } from "@/services/challenges";
+import { saveSession } from "@/lib/auth";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
@@ -118,12 +120,17 @@ export default function LoginPage() {
         password,
         avatar: avatars[selectedAvatarIdx],
       })
-        .then((response) => {
-          setIsLoading(false);
+        .then(async (response) => {
           if (response.status === 201) {
+            // Asignar los 10 retos iniciales al nuevo usuario (dueño vía JWT del registro).
+            if (response.token) {
+              await seedDefaultRetos(response.token);
+            }
+            setIsLoading(false);
             showToast("¡Registro exitoso! Bienvenido a Anonimus Caminos de Apoyo, ya pueden Ingresar.", "success");
             setActiveTab("login");
           } else {
+            setIsLoading(false);
             showToast(response.message, "error");
           }
         })
@@ -135,8 +142,7 @@ export default function LoginPage() {
       loginUserService({ alias, password })
         .then((response) => {
           setIsLoading(false);
-          localStorage.setItem("userInfo", JSON.stringify(response.user));
-          document.cookie = `token=${response.token}; path=/; max-age=86400; SameSite=Lax`;
+          saveSession(response.user, response.token);
           showToast("¡Inicio de sesión exitoso! Bienvenido de vuelta.", "success");
           router.push("/dashboard");
         })

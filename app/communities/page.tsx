@@ -3,11 +3,15 @@
 import { useRouter } from "next/navigation";
 import { useUserInfo } from "@/hooks/useUserInfo";
 import { useEffect, useState } from "react";
+import { useAsync } from "@/hooks/useAsync";
+import { listCommunities } from "@/services/communities";
+import { communityIcon, decorativeMembers } from "@/lib/communityDecor";
 
 export default function CommunitiesPage() {
     const router = useRouter();
     const user = useUserInfo();
     const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const { data: communities, loading, error } = useAsync(() => listCommunities(), []);
 
     const handleLogout = () => {
         // Borrar todas las cookies
@@ -93,7 +97,7 @@ export default function CommunitiesPage() {
                     <div className="hidden md:flex space-x-8">
                         <a
                             className="text-on-surface-variant hover:text-primary transition-colors duration-300 font-headline text-sm font-medium hover:scale-105 ease-out cursor-pointer"
-                            onClick={() => router.push("/dashboard")}
+                            onClick={() => router.push("/communities")}
                         >
                             Comunidades
                         </a>
@@ -156,33 +160,39 @@ export default function CommunitiesPage() {
                         </p>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {[
-                            { icon: "local_bar", name: "Superar el alcoholismo", desc: "Un espacio para compartir estrategias, celebrar días limpios y encontrar aliento en momentos difíciles.", members: 1240 },
-                            { icon: "smoking_rooms", name: "Dejar de fumar", desc: "Recursos, tips y apoyo moral para superar la dependencia al tabaco día a día.", members: 3500 },
-                            { icon: "psychology", name: "Manejo de ansiedad", desc: "Herramientas de relajación, experiencias compartidas y contención emocional segura.", members: 5120 },
-                            { icon: "restaurant", name: "Alimentación saludable", desc: "Motivación, recetas e historias de éxito para transformar tu relación con la comida.", members: 2890 },
-                            { icon: "spa", name: "Bienestar mental", desc: "Espacio dedicado al cuidado integral de tu salud mental y emocional.", members: 4200 },
-                            { icon: "fitness_center", name: "Vida activa", desc: "Comunidad de apoyo para mantener un estilo de vida saludable y activo.", members: 3100 }
-                        ].map((community, i) => (
-                            <div key={i} className="bg-surface-container-lowest rounded-[2rem] p-8 shadow-[0px_20px_40px_rgba(45,51,56,0.06)] hover:bg-surface-container-lowest/80 hover:-translate-y-2 transition-all duration-300 group flex flex-col reveal" style={{ transitionDelay: `${(i + 1) * 100}ms` }}>
+                        {loading && (
+                            <p className="col-span-full text-center text-on-surface-variant">Cargando comunidades…</p>
+                        )}
+                        {error && (
+                            <p className="col-span-full text-center text-error">{error}</p>
+                        )}
+                        {!loading && !error && communities?.length === 0 && (
+                            <p className="col-span-full text-center text-on-surface-variant">Aún no hay comunidades disponibles.</p>
+                        )}
+                        {communities?.map((c) => (
+                            <button
+                                key={c.id_comunidad}
+                                onClick={() => router.push(`/communities/${c.id_comunidad}`)}
+                                className="text-left bg-surface-container-lowest rounded-[2rem] p-8 shadow-[0px_20px_40px_rgba(45,51,56,0.06)] hover:bg-surface-container-lowest/80 hover:-translate-y-2 transition-all duration-300 group flex flex-col cursor-pointer"
+                            >
                                 <div className="w-16 h-16 rounded-full bg-primary-container/30 flex items-center justify-center text-primary mb-6 group-hover:scale-110 transition-transform">
-                                    <span className="material-symbols-outlined text-3xl">{community.icon}</span>
+                                    <span className="material-symbols-outlined text-3xl">{communityIcon(c.categoria)}</span>
                                 </div>
-                                <h3 className="text-xl font-bold text-on-surface mb-2">{community.name}</h3>
-                                <p className="text-on-surface-variant mb-6 grow">
-                                    {community.desc}
+                                <h3 className="text-xl font-bold text-on-surface mb-2">{c.nombre}</h3>
+                                <p className="text-on-surface-variant mb-6 grow capitalize">
+                                    {c.categoria}
                                 </p>
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center text-sm text-on-surface-variant font-medium">
                                         <span className="material-symbols-outlined text-base mr-2">group</span>
-                                        <span>{community.members.toLocaleString()} miembros</span>
+                                        <span>{decorativeMembers(c.id_comunidad)} miembros</span>
                                     </div>
-                                    <button className="text-primary font-medium hover:text-primary-dim flex items-center text-sm">
-                                        Unirse
+                                    <span className="text-primary font-medium group-hover:text-primary-dim flex items-center text-sm">
+                                        Entrar
                                         <span className="material-symbols-outlined ml-1 text-sm">arrow_forward</span>
-                                    </button>
+                                    </span>
                                 </div>
-                            </div>
+                            </button>
                         ))}
                     </div>
                 </section>
