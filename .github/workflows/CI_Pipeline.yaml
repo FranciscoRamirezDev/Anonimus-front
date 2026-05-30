@@ -30,6 +30,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Test (con cobertura)
+        run: npm run test:coverage
+
       - name: Build
         run: npm run build
         env:
