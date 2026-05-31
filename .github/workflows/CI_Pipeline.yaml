@@ -1,8 +1,8 @@
 name: CI_PIPELINE
 
-# Se ejecuta al abrir, actualizar o reabrir un Pull Request hacia develop.
+# Se ejecuta solo en push/merge a develop. (main lo despliega Vercel automáticamente.)
 on:
-  pull_request:
+  push:
     branches: [develop]
 
 # Cancela ejecuciones previas del mismo PR si llega un nuevo push.
